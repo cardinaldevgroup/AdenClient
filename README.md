@@ -1,7 +1,14 @@
 # AdenClient 简介
 
-AdenClient 是一个支持模组的沙盒游戏框架，图形底层由 `SDL2` 提供接口，并使用 `Box2D` 来模拟物理效果。
+> AdenClient 是一个社区支持的 2D 沙盒游戏，开发者可以制作高度自定义的模组，创造自己的世界。
 
-该框架使用 `C++` 实现，并使用 `lua` 作为游戏的模组文件脚本，计划在完成该框架后制作出游戏的第一个官方模组。
+正在进行任务：
 
-项目负责人（不分先后）：[hsz](https://github.com/hszOfficial-16)、[Voidmatrix](https://github.com/VoidmatrixHeathcliff)
++ [ ] 使用 SDL2 等库实现游戏框架搭建
++ [ ] 开发基于 Lua 的脚本系统
++ [ ] 开发官方示例模组，设定集 [见此处](doc/DemoModDev-Ver.0.0.1.md)
+
+项目贡献者（排名不分先后）：
+| ![hsz](https://avatars.githubusercontent.com/u/63097618?v=4) | ![Voidmatrix](https://avatars.githubusercontent.com/u/46210663?v=4) |
+|:------------------------------------------------------------:|:-------------------------------------------------------------------:|
+|                             hsz                              |                             Voidmatrix                              |
