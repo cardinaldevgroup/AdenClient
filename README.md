@@ -9,6 +9,6 @@
 + [ ] 开发官方示例模组，设定集 [见此处](doc/DemoModDev-Ver.0.0.1.md)
 
 项目贡献者（排名不分先后）：
-| ![hsz](https://avatars.githubusercontent.com/u/63097618?v=4) | ![Voidmatrix](https://avatars.githubusercontent.com/u/46210663?v=4) |
+| ![hsz](https://avatars.githubusercontent.com/u/63097618?s=100&v=4) | ![Voidmatrix](https://avatars.githubusercontent.com/u/46210663?s=100&v=4) |
 |:------------------------------------------------------------:|:-------------------------------------------------------------------:|
 |                             hsz                              |                             Voidmatrix                              |
