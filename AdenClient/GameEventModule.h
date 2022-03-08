@@ -1,0 +1,5 @@
+#ifndef _GAME_EVENT_MODULE_H_
+#define _GAME_EVENT_MODULE_H_
+
+
+#endif // !_GAME_EVENT_MODULE_H_

@@ -12,5 +12,61 @@
     <ClCompile Include="GameMain.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="GameBlockAllocator.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFileIO.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMediaModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameGraphicModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSpriteModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameWidgetModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEventModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameModModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameBlockAllocator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFileIO.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMediaModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameGraphicModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameWidgetModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEventModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSpriteModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameModModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -19,7 +19,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameBlockAllocator.cpp" />
+    <ClCompile Include="GameEventModule.cpp" />
+    <ClCompile Include="GameGraphicModule.cpp" />
+    <ClCompile Include="GameFileIO.cpp" />
     <ClCompile Include="GameMain.cpp" />
+    <ClCompile Include="GameMediaModule.cpp" />
+    <ClCompile Include="GameModModule.cpp" />
+    <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="GameSpriteModule.cpp" />
+    <ClCompile Include="GameWidgetModule.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameBlockAllocator.h" />
+    <ClInclude Include="GameEventModule.h" />
+    <ClInclude Include="GameGraphicModule.h" />
+    <ClInclude Include="GameFileIO.h" />
+    <ClInclude Include="GameMediaModule.h" />
+    <ClInclude Include="GameModModule.h" />
+    <ClInclude Include="GameScene.h" />
+    <ClInclude Include="GameSpriteModule.h" />
+    <ClInclude Include="GameWidgetModule.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

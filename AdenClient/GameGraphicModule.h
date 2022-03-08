@@ -1,0 +1,6 @@
+#ifndef _GAME_GRAPHIC_MODULE_H_
+#define _GAME_GRAPHIC_MODULE_H_
+
+
+
+#endif // !_GAME_GRAPHIC_MODULE_H_
