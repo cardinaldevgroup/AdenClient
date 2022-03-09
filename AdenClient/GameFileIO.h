@@ -3,11 +3,55 @@
 
 #include <string>
 
+struct GameFile
+{
+	void*	pData;
+	int		nLength;
+
+	GameFile()
+	{
+		pData = nullptr;
+		nLength = 0;
+	}
+	GameFile(void* data, int length)
+	{
+		pData = data;
+		nLength = length;
+	}
+	~GameFile()
+	{
+		delete[] pData;
+	}
+
+	// 删除复制构造函数并提供移动构造函数，提高程序效率
+	GameFile(GameFile&& move) noexcept
+	{
+		pData = move.pData;
+		nLength = move.nLength;
+		move.pData = nullptr;
+		move.nLength = 0;
+	}
+	GameFile(const GameFile& copy) = delete;
+};
+
 class GameFileIO
 {
 public:
-	void* Read(std::string strFilePath);
-	void  Write(void* pData, std::string strFilePath);
+	/* 将指定路径下的文件读取到内存中来
+	* @param 
+	* strFilePath: 路径+文件名
+	* pData: 储存数据的指针
+	* nLength: 数据长度
+	*/
+	GameFile	Read(std::string strFilePath);
+
+	/* 将内存中的数据写入到指定文件中去
+	* @param
+	* strFilePath: 路径+文件名
+	* pData: 储存数据的指针
+	* nLength: 数据长度
+	*/
+	void		Write(std::string strFilePath, GameFile& file);
 
 private:
 	class Impl;

@@ -35,7 +35,6 @@ public:
 		static GameBlockAllocator instance;
 		return instance;
 	}
-
 private:
 	GameBlockAllocator();
 };
