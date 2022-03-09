@@ -6,8 +6,14 @@ public:
 
 
 public:
+	Impl()
+	{
 
+	}
+	~Impl()
+	{
 
+	}
 };
 
 void* GameFileIO::Read(std::string strFilePath)

@@ -6,7 +6,7 @@
 static const int s_nChunkSize = 16 * 1024;
 
 // 开辟新区块时单次开辟的区块总数
-static const int s_nChunkIncrement = 64;
+static const int s_nChunkIncrement = 128;
 
 // 不同内存块大小的区块种类总数
 static const int s_nChunkSizeCount = 5;
@@ -90,6 +90,7 @@ void* GameBlockAllocator::Allocate(size_t nSize)
 	{
 		Impl::Block* pBlock = m_pImpl->m_arrFreeBlockHead[index];
 		m_pImpl->m_arrFreeBlockHead[index] = pBlock->pNext;
+
 		return pBlock;
 	}
 	// 如果该类区块没有空余位置，则开辟指定数量的新区块
@@ -100,13 +101,13 @@ void* GameBlockAllocator::Allocate(size_t nSize)
 		{
 			Impl::ChunkInfo* arrOldChunk = m_pImpl->m_arrChunkInfo;
 
-			m_pImpl->m_nChunkSpace += s_nChunkSizeCount;
+			m_pImpl->m_nChunkSpace += s_nChunkIncrement;
 			m_pImpl->m_arrChunkInfo = new Impl::ChunkInfo[m_pImpl->m_nChunkSpace];
 
 			// 转移旧区块信息并初始化新区块信息
 			memcpy(m_pImpl->m_arrChunkInfo, arrOldChunk, m_pImpl->m_nChunkCount * sizeof(Impl::ChunkInfo));
 			memset(m_pImpl->m_arrChunkInfo + m_pImpl->m_nChunkCount, 0, s_nChunkIncrement * sizeof(Impl::ChunkInfo));
-			delete arrOldChunk;
+			delete[] arrOldChunk;
 		}
 
 		// 开辟新区块并初始化
@@ -156,11 +157,8 @@ void GameBlockAllocator::Clear()
 	}
 	m_pImpl->m_nChunkCount = 0;
 
-	for (int i = 0; i < m_pImpl->m_nChunkSpace - 1; i++)
-	{
-		Impl::ChunkInfo* pChunkInfo = m_pImpl->m_arrChunkInfo + i;
-		pChunkInfo = nullptr;
-	}
+	memset(m_pImpl->m_arrChunkInfo, 0, m_pImpl->m_nChunkSpace * sizeof(Impl::ChunkInfo));
+	memset(m_pImpl->m_arrFreeBlockHead, 0, sizeof(m_pImpl->m_arrFreeBlockHead));
 }
 
 GameBlockAllocator::GameBlockAllocator()
