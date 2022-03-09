@@ -159,6 +159,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./lib/cjson/include/;./lib/Lua5.4/include/;./lib/SDL2/include/;./lib/SDL2_gfx/include/;./lib/SDL2_image/include/;./lib/SDL2_mixer/include/;./lib/SDL2_ttf/include/;./lib/SDL2_net/include/;./lib/Box2D/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

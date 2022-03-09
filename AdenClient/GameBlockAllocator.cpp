@@ -112,7 +112,7 @@ void* GameBlockAllocator::Allocate(size_t nSize)
 		// 开辟新区块并初始化
 		Impl::ChunkInfo* pChunkInfo = m_pImpl->m_arrChunkInfo + m_pImpl->m_nChunkCount;
 		pChunkInfo->pBlocks = (Impl::Block*)new char[s_nChunkSize];
-		pChunkInfo->nChunkSize = m_pImpl->m_arrSizeMap[nSize];
+		pChunkInfo->nChunkSize = s_arrBlockSize[index];
 
 		int nBlockCount = s_nChunkSize / pChunkInfo->nChunkSize;
 		for (int i = 0; i < nBlockCount - 1; i++)
