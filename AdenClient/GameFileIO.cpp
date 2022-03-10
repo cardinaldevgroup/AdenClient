@@ -19,7 +19,7 @@ public:
 	}
 };
 
-GameFile GameFileIO::Read(std::string strFilePath)
+GameFile GameFileIO::Read(const std::string& strFilePath)
 {
 	m_pImpl->m_finStream.open(strFilePath, std::ios_base::in | std::ios_base::binary);
 
@@ -40,7 +40,7 @@ GameFile GameFileIO::Read(std::string strFilePath)
 	return { pData, nLength };
 }
 
-void GameFileIO::Write(std::string strFilePath, GameFile& file)
+void GameFileIO::Write(const std::string& strFilePath, const GameFile& file)
 {
 	m_pImpl->m_foutStream.open(strFilePath, std::ios_base::out | std::ios_base::binary);
 

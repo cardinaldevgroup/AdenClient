@@ -26,7 +26,6 @@ public:
 	{
 		Block*	pNext;
 	};
-
 	struct ChunkInfo
 	{
 		int		nChunkSize;

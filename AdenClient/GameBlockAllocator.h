@@ -14,7 +14,6 @@ public:
 	* @param 
 	* pObject: 对象指针
 	* nSize: 对象大小
-	* @return 无
 	*/
 	void  Free(void* pObject, size_t nSize);
 

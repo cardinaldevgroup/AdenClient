@@ -23,7 +23,9 @@ struct GameFile
 		delete[] pData;
 	}
 
-	// 删除复制构造函数并提供移动构造函数，提高程序效率
+	/* 删除复制构造函数并提供移动构造函数
+	保证返回函数值过程中程序的效率
+	 */
 	GameFile(GameFile&& move) noexcept
 	{
 		pData = move.pData;
@@ -42,16 +44,16 @@ public:
 	* strFilePath: 路径+文件名
 	* pData: 储存数据的指针
 	* nLength: 数据长度
+	* @return 包含二进制数据和其长度的结构体
 	*/
-	GameFile	Read(std::string strFilePath);
+	GameFile	Read(const std::string& strFilePath);
 
 	/* 将内存中的数据写入到指定文件中去
 	* @param
 	* strFilePath: 路径+文件名
-	* pData: 储存数据的指针
-	* nLength: 数据长度
+	* file: 包含二进制数据和其长度的结构体
 	*/
-	void		Write(std::string strFilePath, GameFile& file);
+	void		Write(const std::string& strFilePath, const GameFile& file);
 
 private:
 	class Impl;
