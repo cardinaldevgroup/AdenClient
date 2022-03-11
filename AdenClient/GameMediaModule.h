@@ -1,6 +1,8 @@
 #ifndef _GAME_MEDIA_MODULE_H_
 #define _GAME_MEDIA_MODULE_H_
 
+#include <string>
+
 class GameMediaManager
 {
 public:
@@ -19,6 +21,7 @@ public:
 		static GameMediaManager instance;
 		return instance;
 	}
+
 private:
 	GameMediaManager();
 };
