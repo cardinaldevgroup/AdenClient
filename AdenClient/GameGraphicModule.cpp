@@ -121,27 +121,28 @@ GameFont::~GameFont()
 class GameImage::Impl
 {
 public:
-	GameTexture*	pGameTexture;
-	int				nDuration;
+	Frame*	pFrames;
+	int		nFrameCount;
 
 public:
 	Impl()
 	{
-		pGameTexture = nullptr;
-		nDuration = 0;
+		pFrames = nullptr;
+		nFrameCount = 0;
+	}
+	~Impl()
+	{
+		if (pFrames)
+		{
+			delete[] pFrames;
+			GameBlockAllocator::GetInstance().Free(pFrames, sizeof(Frame) * nFrameCount);
+		}
 	}
 };
 
 GameImage::GameImage()
 {
 	m_pImpl = new Impl();
-}
-
-GameImage::GameImage(Def& def)
-{
-	m_pImpl = new Impl();
-	m_pImpl->pGameTexture = def.pGameTexture;
-	m_pImpl->nDuration = def.nDuration;
 }
 
 GameImage::~GameImage()
@@ -155,6 +156,10 @@ public:
 	SDL_Window*		m_pWindow;
 	SDL_Renderer*	m_pRenderer;
 
+	SDL_Rect		m_rectSrc;
+	SDL_FRect		m_rectDst;
+	SDL_FPoint		m_pointAngle;
+
 public:
 	Impl()
 	{
@@ -167,6 +172,10 @@ public:
 
 		SDL_SetRenderDrawBlendMode(m_pRenderer, SDL_BLENDMODE_BLEND);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
+		m_rectSrc = { 0, 0, 0, 0 };
+		m_rectDst = { 0.0f, 0.0f, 0.0f, 0.0f };
+		m_pointAngle = { 0.0f, 0.0f };
 	}
 	~Impl()
 	{
@@ -214,27 +223,41 @@ GameFont* GameGraphicManager::LoadFontFromFile(std::string strFilePath, int nFon
 	else return nullptr;
 }
 
-GameImage* GameGraphicManager::CreateStaticImage(GameTexture* pGameTexture)
+GameImage* GameGraphicManager::CreateImage(GameTexture* pGameTexture)
 {
 	if (!pGameTexture) return nullptr;
 
-	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameImage));
-	GameImage* arrImages = new (pMem) GameImage[1];
-	arrImages[0].m_pImpl->pGameTexture = pGameTexture;
-	arrImages[0].m_pImpl->nDuration = 0;
+	void* pMemImage = GameBlockAllocator::GetInstance().Allocate(sizeof(GameImage));
+	GameImage* pGameImage = new (pMemImage) GameImage();
 
-	return arrImages;
+	void* pMemFrame = GameBlockAllocator::GetInstance().Allocate(sizeof(GameImage::Frame));
+	GameImage::Frame* pFrame = new (pMemFrame) GameImage::Frame();
+	pFrame->pGameTexture = pGameTexture; pFrame->nDuration = 0;
+
+	pGameImage->m_pImpl->pFrames = pFrame;
+	pGameImage->m_pImpl->nFrameCount = 1;
+
+	return pGameImage;
 }
 
-GameImage* GameGraphicManager::CreateDynamicImage(std::initializer_list<GameImage::Def>& ilGameImages)
+GameImage* GameGraphicManager::CreateImage(const std::initializer_list<GameImage::Frame>& ilGameFrames)
 {
-	size_t nListSize = ilGameImages.size();
-	if (nListSize == 0) return nullptr;
+	int nFrameCount = ilGameFrames.size();
 
-	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameImage) * nListSize);
-	GameImage* arrImages = new (pMem) GameImage[nListSize];
+	void* pMemImage = GameBlockAllocator::GetInstance().Allocate(sizeof(GameImage));
+	GameImage* pGameImage = new (pMemImage) GameImage();
+	pGameImage->m_pImpl->nFrameCount = nFrameCount;
 
-	return arrImages;
+	void* pMemFrames = GameBlockAllocator::GetInstance().Allocate(sizeof(GameImage::Frame) * nFrameCount);
+	GameImage::Frame* pFrames = new (pMemFrames) GameImage::Frame[sizeof(GameImage::Frame) * nFrameCount];
+	for (int i = 0; i < nFrameCount; i++)
+	{
+		pFrames[i].pGameTexture = (ilGameFrames.begin() + i)->pGameTexture;
+		pFrames[i].nDuration = (ilGameFrames.begin() + i)->nDuration;
+	}
+	pGameImage->m_pImpl->pFrames = pFrames;
+
+	return pGameImage;
 }
 
 void GameGraphicManager::DestroyTexture(GameTexture* pGameTexture)
@@ -253,12 +276,71 @@ void GameGraphicManager::DestroyFont(GameFont* pGameFont)
 	GameBlockAllocator::GetInstance().Free(pGameFont, sizeof(GameFont));
 }
 
-void GameGraphicManager::DestroryImage(GameImage* pGameImage)
+void GameGraphicManager::DestroyImage(GameImage* pGameImage)
 {
 	if (!pGameImage) return;
 
 	pGameImage->~GameImage();
 	GameBlockAllocator::GetInstance().Free(pGameImage, sizeof(GameImage));
+}
+
+void GameGraphicManager::Draw(GameImage* const pGameImage,
+	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
+	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameTexture::Flip emFlip,
+	int nProgress)
+{
+	if (!pGameImage) return;
+
+	// 计算出当前应该渲染哪一张纹理
+	int nIndex = 0;
+	while (nProgress - pGameImage->m_pImpl->pFrames[nIndex].nDuration >= 0)
+	{
+		nProgress -= pGameImage->m_pImpl->pFrames[nIndex].nDuration;
+		nIndex = (nIndex + 1) % pGameImage->m_pImpl->nFrameCount;
+	}
+
+	m_pImpl->m_rectSrc = { 0, 0,
+		pGameImage->m_pImpl->pFrames->pGameTexture->GetWidth(),
+		pGameImage->m_pImpl->pFrames->pGameTexture->GetHeight() };
+	m_pImpl->m_rectDst = { fDstX, fDstY, fDstW, fDstH };
+	m_pImpl->m_pointAngle = { fAnchorX, fAnchorY };
+
+	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
+		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fAngle, &m_pImpl->m_pointAngle, (SDL_RendererFlip)emFlip);
+}
+
+void GameGraphicManager::Draw(GameImage* const pGameImage,
+	const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
+	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
+	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameTexture::Flip emFlip,
+	int nProgress)
+{
+	if (!pGameImage) return;
+	
+	// 计算出当前应该渲染哪一张纹理
+	int nIndex = 0;
+	while (nProgress - pGameImage->m_pImpl->pFrames[nIndex].nDuration >= 0)
+	{
+		nProgress -= pGameImage->m_pImpl->pFrames[nIndex].nDuration;
+		nIndex = (nIndex + 1) % pGameImage->m_pImpl->nFrameCount;
+	}
+
+	m_pImpl->m_rectSrc = { nSrcX, nSrcY, nSrcW, nSrcH };
+	m_pImpl->m_rectDst = { fDstX, fDstY, fDstW, fDstH };
+	m_pImpl->m_pointAngle = { fAnchorX, fAnchorY };
+
+	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage[nIndex].m_pImpl->pFrames->pGameTexture->m_pImpl->m_pTexture,
+		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fAngle, &m_pImpl->m_pointAngle, (SDL_RendererFlip)emFlip);
+}
+
+void GameGraphicManager::ClearWindow()
+{
+	SDL_RenderClear(m_pImpl->m_pRenderer);
+}
+
+void GameGraphicManager::PresentWindow()
+{
+	SDL_RenderPresent(m_pImpl->m_pRenderer);
 }
 
 GameGraphicManager::GameGraphicManager()

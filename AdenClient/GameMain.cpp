@@ -1,4 +1,6 @@
-#include "GameFileIO.h"
+#include "GameGraphicModule.h"
+
+#include <Windows.h>
 
 #undef main
 int main(int argc, char* argv[])
