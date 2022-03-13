@@ -134,7 +134,10 @@ public:
 	{
 		if (pFrames)
 		{
-			delete[] pFrames;
+			for (int i = 0; i < nFrameCount; i++)
+			{
+				pFrames[i].~Frame();
+			}
 			GameBlockAllocator::GetInstance().Free(pFrames, sizeof(Frame) * nFrameCount);
 		}
 	}
@@ -231,7 +234,7 @@ GameImage* GameGraphicManager::CreateImage(GameTexture* pGameTexture)
 	GameImage* pGameImage = new (pMemImage) GameImage();
 
 	void* pMemFrame = GameBlockAllocator::GetInstance().Allocate(sizeof(GameImage::Frame));
-	GameImage::Frame* pFrame = new (pMemFrame) GameImage::Frame();
+	GameImage::Frame* pFrame = new (pMemFrame) GameImage::Frame[1];
 	pFrame->pGameTexture = pGameTexture; pFrame->nDuration = 0;
 
 	pGameImage->m_pImpl->pFrames = pFrame;
@@ -286,7 +289,7 @@ void GameGraphicManager::DestroyImage(GameImage* pGameImage)
 
 void GameGraphicManager::Draw(GameImage* const pGameImage,
 	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameTexture::Flip emFlip,
+	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
 {
 	if (!pGameImage) return;
@@ -299,11 +302,17 @@ void GameGraphicManager::Draw(GameImage* const pGameImage,
 		nIndex = (nIndex + 1) % pGameImage->m_pImpl->nFrameCount;
 	}
 
-	m_pImpl->m_rectSrc = { 0, 0,
+	m_pImpl->m_rectSrc = {
+		0, 0,
 		pGameImage->m_pImpl->pFrames->pGameTexture->GetWidth(),
-		pGameImage->m_pImpl->pFrames->pGameTexture->GetHeight() };
-	m_pImpl->m_rectDst = { fDstX, fDstY, fDstW, fDstH };
-	m_pImpl->m_pointAngle = { fAnchorX, fAnchorY };
+		pGameImage->m_pImpl->pFrames->pGameTexture->GetHeight() 
+	};
+	m_pImpl->m_rectDst = {
+		fDstX - fAnchorX * fDstW - fDstW / 2,
+		fDstH / 2 - (fDstY - fAnchorY * fDstH),
+		fDstW, fDstH
+	};
+	m_pImpl->m_pointAngle = { fAnchorX * fDstW, fAnchorY * fDstH };
 
 	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
 		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fAngle, &m_pImpl->m_pointAngle, (SDL_RendererFlip)emFlip);
@@ -312,7 +321,7 @@ void GameGraphicManager::Draw(GameImage* const pGameImage,
 void GameGraphicManager::Draw(GameImage* const pGameImage,
 	const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
 	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameTexture::Flip emFlip,
+	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
 {
 	if (!pGameImage) return;
@@ -326,10 +335,14 @@ void GameGraphicManager::Draw(GameImage* const pGameImage,
 	}
 
 	m_pImpl->m_rectSrc = { nSrcX, nSrcY, nSrcW, nSrcH };
-	m_pImpl->m_rectDst = { fDstX, fDstY, fDstW, fDstH };
-	m_pImpl->m_pointAngle = { fAnchorX, fAnchorY };
+	m_pImpl->m_rectDst = {
+		fDstX - fAnchorX * fDstW - fDstW / 2,
+		fDstH / 2 - (fDstY - fAnchorY * fDstH),
+		fDstW, fDstH
+	};
+	m_pImpl->m_pointAngle = { fAnchorX * fDstW, fAnchorY * fDstH };
 
-	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage[nIndex].m_pImpl->pFrames->pGameTexture->m_pImpl->m_pTexture,
+	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
 		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fAngle, &m_pImpl->m_pointAngle, (SDL_RendererFlip)emFlip);
 }
 
