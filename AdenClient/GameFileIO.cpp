@@ -40,6 +40,34 @@ GameFile GameFileIO::Read(const std::string& strFilePath)
 	return { pData, nLength };
 }
 
+GameFile* GameFileIO::ReadToHeap(const std::string& strFilePath)
+{
+	m_pImpl->m_finStream.open(strFilePath, std::ios_base::in | std::ios_base::binary);
+
+	if (!m_pImpl->m_finStream.is_open())
+	{
+		return nullptr;
+	}
+
+	m_pImpl->m_finStream.seekg(0, m_pImpl->m_finStream.end);
+	int nLength = m_pImpl->m_finStream.tellg();
+	char* pData = new char[nLength];
+	m_pImpl->m_finStream.seekg(0, m_pImpl->m_finStream.beg);
+	m_pImpl->m_finStream.read((char*)pData, nLength);
+
+	GameFile* pFile = new GameFile(pData, nLength);
+
+	m_pImpl->m_finStream.clear();
+	m_pImpl->m_finStream.close();
+
+	return pFile;
+}
+
+void GameFileIO::DestroyFileInHeap(GameFile* pFile)
+{
+	delete pFile;
+}
+
 void GameFileIO::Write(const std::string& strFilePath, const GameFile& file)
 {
 	m_pImpl->m_foutStream.open(strFilePath, std::ios_base::out | std::ios_base::binary);
