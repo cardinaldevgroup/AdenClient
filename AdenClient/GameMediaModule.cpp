@@ -11,12 +11,14 @@
 class GameMusic::Impl
 {
 public:
-	Mix_Music* m_pMusic;
+	Mix_Music*	m_pMusic;
+	GameFile*	m_pFile;
 
 public:
 	Impl()
 	{
-		m_pMusic = nullptr;
+		m_pMusic	= nullptr;
+		m_pFile		= nullptr;
 	}
 
 	~Impl()
@@ -24,6 +26,11 @@ public:
 		if (m_pMusic)
 		{
 			Mix_FreeMusic(m_pMusic);
+		}
+
+		if (m_pFile)
+		{
+			GameFileIO::GetInstance().DestroyFileInHeap(m_pFile);
 		}
 	}
 };
@@ -112,16 +119,22 @@ GameMediaManager::~GameMediaManager()
 
 GameMusic* GameMediaManager::LoadMusicFromFile(const std::string& strFilePath)
 {
-	GameFile musicFile = GameFileIO::GetInstance().Read(strFilePath);
-
-	Mix_Music* pMusic = nullptr;
-	if (pMusic = Mix_LoadMUS_RW(SDL_RWFromMem(musicFile.pData, musicFile.nLength), 1))
+	GameFile* musicFile = nullptr;
+	if (musicFile = GameFileIO::GetInstance().ReadToHeap(strFilePath))
 	{
-		void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameMusic));
-		GameMusic* pGameMusic = new (pMem) GameMusic();
-		pGameMusic->m_pImpl->m_pMusic = pMusic;
+		Mix_Music* pMusic = nullptr;
+		if (pMusic = Mix_LoadMUS_RW(SDL_RWFromMem(musicFile->pData, musicFile->nLength), 1))
+		{
+			void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameMusic));
+			GameMusic* pGameMusic = new (pMem) GameMusic();
+			pGameMusic->m_pImpl->m_pMusic = pMusic;
+			pGameMusic->m_pImpl->m_pFile = musicFile;
 
-		return pGameMusic;
+			return pGameMusic;
+		}
+
+		GameFileIO::GetInstance().DestroyFileInHeap(musicFile);
+		return nullptr;
 	}
 	
 	return nullptr;

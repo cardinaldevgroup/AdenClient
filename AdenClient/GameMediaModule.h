@@ -1,6 +1,8 @@
 #ifndef _GAME_MEDIA_MODULE_H_
 #define _GAME_MEDIA_MODULE_H_
 
+#include "GameFileIO.h"
+
 #include <string>
 
 class GameMusic
