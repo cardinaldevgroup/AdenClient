@@ -14,16 +14,22 @@ public:
 		Point	pointPosition;
 		Point	pointScale;
 		int		nZOrder;
+
 		Point	pointAnchor;
 		float	fAngle;
+
+		int		nTag;
 
 		Def()
 		{
 			pointPosition = { 0.0f, 0.0f };
 			pointScale = { 1.0f, 1.0f };
 			nZOrder = 0;
+
 			pointAnchor = { 0.5f, 0.5f };
 			fAngle = 0.0f;
+
+			nTag = 0;
 		}
 	};
 	
@@ -41,6 +47,16 @@ public:
 
 	const float&	GetAngle();
 	void			SetAngle(const float& fAngle);
+
+	const int&		GetTag();
+	void			SetTag(const int& nTag);
+
+	GameNode*		GetParent();
+	void			SetParent(GameNode* pNode);
+
+	GameNode*		GetChildHead();
+	void			AddChild(GameNode* pNode);
+	void			RemoveChild(GameNode* pNode);
 
 private:
 	class Impl;

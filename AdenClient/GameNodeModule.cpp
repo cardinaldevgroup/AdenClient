@@ -16,7 +16,11 @@ public:
 
 	GameNode*	m_pParent;
 	GameNode*	m_pChildHead;
+	GameNode*	m_pChildPrev;
 	GameNode*	m_pChildNext;
+
+
+	int			m_nTag;
 
 public:
 	Impl()
@@ -30,7 +34,10 @@ public:
 
 		m_pParent = nullptr;
 		m_pChildHead = nullptr;
+		m_pChildPrev = nullptr;
 		m_pChildNext = nullptr;
+
+		m_nTag = 0;
 	}
 };
 
@@ -84,6 +91,87 @@ void GameNode::SetAngle(const float& fAngle)
 	m_pImpl->m_fAngle = fAngle;
 }
 
+const int& GameNode::GetTag()
+{
+	return m_pImpl->m_nTag;
+}
+
+void GameNode::SetTag(const int& nTag)
+{
+	m_pImpl->m_nTag = nTag;
+}
+
+GameNode* GameNode::GetParent()
+{
+	return m_pImpl->m_pParent;
+}
+
+void GameNode::SetParent(GameNode* pNode)
+{
+	// 若 pNode 为 nullptr，则移除原有父子关系
+	if (!pNode)
+	{
+		if (m_pImpl->m_pParent)
+		{
+			m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = m_pImpl->m_pChildNext;
+			m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = m_pImpl->m_pChildPrev;
+		}
+		m_pImpl->m_pParent = nullptr;
+		return;
+	}
+
+	// 若 pNode 不为 nullptr，先移除原有父子关系，再添加新父子关系
+	if (m_pImpl->m_pParent)
+	{
+		m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = m_pImpl->m_pChildNext;
+		m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = m_pImpl->m_pChildPrev;
+	}
+
+	m_pImpl->m_pParent = pNode;
+	m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildHead;
+	if (pNode->m_pImpl->m_pChildHead)
+	{
+		pNode->m_pImpl->m_pChildHead->m_pImpl->m_pChildPrev = this;
+	}
+	pNode->m_pImpl->m_pParent->m_pImpl->m_pChildHead = this;
+}
+
+GameNode* GameNode::GetChildHead()
+{
+	return m_pImpl->m_pChildHead;
+}
+
+void GameNode::AddChild(GameNode* pNode)
+{
+	if (!pNode) return;
+
+	// 若该子节点已有父子关系，则移除这段父子关系
+	if (pNode->m_pImpl->m_pParent)
+	{
+		pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildNext;
+		pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = pNode->m_pImpl->m_pChildPrev;
+	}
+
+	pNode->m_pImpl->m_pParent = this;
+	pNode->m_pImpl->m_pChildNext = m_pImpl->m_pChildHead;
+	if (m_pImpl->m_pChildHead)
+	{
+		m_pImpl->m_pChildHead->m_pImpl->m_pChildPrev = pNode;
+	}
+	m_pImpl->m_pChildHead = pNode;
+}
+
+void GameNode::RemoveChild(GameNode* pNode)
+{
+	if (!pNode) return;
+
+	if (pNode->m_pImpl->m_pParent != this) return;
+
+	pNode->m_pImpl->m_pParent = nullptr;
+	pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildNext;
+	pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = pNode->m_pImpl->m_pChildPrev;
+}
+
 GameNode::GameNode()
 {
 	m_pImpl = new Impl();
@@ -118,6 +206,7 @@ GameNode* GameNodeFactory::CreateNode(const GameNode::Def& defNode)
 	pNode->m_pImpl->m_nZOrder = defNode.nZOrder;
 	pNode->m_pImpl->m_pointAnchor = defNode.pointAnchor;
 	pNode->m_pImpl->m_fAngle = defNode.fAngle;
+	pNode->m_pImpl->m_nTag = defNode.nTag;
 
 	return pNode;
 }
