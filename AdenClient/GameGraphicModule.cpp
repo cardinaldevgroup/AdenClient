@@ -93,7 +93,7 @@ int GameFont::GetKerning()
 	return TTF_GetFontKerning(m_pImpl->m_pFont);
 }
 
-void GameFont::SetKerning(int nKerning)
+void GameFont::SetKerning(const int& nKerning)
 {
 	TTF_SetFontKerning(m_pImpl->m_pFont, nKerning);
 }
@@ -103,7 +103,7 @@ int GameFont::GetOutline()
 	return TTF_GetFontOutline(m_pImpl->m_pFont);
 }
 
-void GameFont::SetOutline(int nOutlineWidth)
+void GameFont::SetOutline(const int& nOutlineWidth)
 {
 	TTF_SetFontOutline(m_pImpl->m_pFont, nOutlineWidth);
 }
@@ -191,7 +191,7 @@ public:
 	}
 };
 
-GameTexture* GameGraphicManager::LoadTextureFromFile(std::string strFilePath)
+GameTexture* GameGraphicManager::LoadTextureFromFile(const std::string& strFilePath)
 {
 	GameFile textureFile = GameFileIO::GetInstance().Read(strFilePath);
 
@@ -207,10 +207,10 @@ GameTexture* GameGraphicManager::LoadTextureFromFile(std::string strFilePath)
 		SDL_FreeSurface(pSurface);
 		return pGameTexture;
 	}
-	else return nullptr;
+	return nullptr;
 }
 
-GameFont* GameGraphicManager::LoadFontFromFile(std::string strFilePath, int nFontSize)
+GameFont* GameGraphicManager::LoadFontFromFile(const std::string& strFilePath, const int& nFontSize)
 {
 	GameFile fontFile = GameFileIO::GetInstance().Read(strFilePath);
 
@@ -223,7 +223,7 @@ GameFont* GameGraphicManager::LoadFontFromFile(std::string strFilePath, int nFon
 
 		return pGameFont;
 	}
-	else return nullptr;
+	return nullptr;
 }
 
 GameImage* GameGraphicManager::CreateImage(GameTexture* pGameTexture)
@@ -287,7 +287,7 @@ void GameGraphicManager::DestroyImage(GameImage* pGameImage)
 	GameBlockAllocator::GetInstance().Free(pGameImage, sizeof(GameImage));
 }
 
-void GameGraphicManager::Draw(GameImage* const pGameImage,
+void GameGraphicManager::Draw(const GameImage* pGameImage,
 	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
 	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
@@ -308,8 +308,8 @@ void GameGraphicManager::Draw(GameImage* const pGameImage,
 		pGameImage->m_pImpl->pFrames->pGameTexture->GetHeight() 
 	};
 	m_pImpl->m_rectDst = {
-		fDstX - fAnchorX * fDstW - fDstW / 2,
-		fDstH / 2 - (fDstY - fAnchorY * fDstH),
+		fDstX - fAnchorX * fDstW,
+		fDstY - fAnchorY * fDstH,
 		fDstW, fDstH
 	};
 	m_pImpl->m_pointAngle = { fAnchorX * fDstW, fAnchorY * fDstH };
@@ -318,7 +318,7 @@ void GameGraphicManager::Draw(GameImage* const pGameImage,
 		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fAngle, &m_pImpl->m_pointAngle, (SDL_RendererFlip)emFlip);
 }
 
-void GameGraphicManager::Draw(GameImage* const pGameImage,
+void GameGraphicManager::Draw(const GameImage* pGameImage,
 	const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
 	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
 	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
@@ -335,9 +335,10 @@ void GameGraphicManager::Draw(GameImage* const pGameImage,
 	}
 
 	m_pImpl->m_rectSrc = { nSrcX, nSrcY, nSrcW, nSrcH };
+
 	m_pImpl->m_rectDst = {
-		fDstX - fAnchorX * fDstW - fDstW / 2,
-		fDstH / 2 - (fDstY - fAnchorY * fDstH),
+		fDstX - fAnchorX * fDstW,
+		fDstY - fAnchorY * fDstH,
 		fDstW, fDstH
 	};
 	m_pImpl->m_pointAngle = { fAnchorX * fDstW, fAnchorY * fDstH };

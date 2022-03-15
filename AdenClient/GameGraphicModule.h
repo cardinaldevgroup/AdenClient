@@ -47,12 +47,12 @@ public:
 	// 获取字体的字距
 	int		GetKerning();
 	// 设置字体的字距
-	void	SetKerning(int nKerning);
+	void	SetKerning(const int& nKerning);
 
 	// 获取字体的轮框线宽度
 	int		GetOutline();
 	// 设置字体的轮框线宽度
-	void	SetOutline(int nOutlineWidth);
+	void	SetOutline(const int& nOutlineWidth);
 
 private:
 	class Impl;
@@ -122,10 +122,10 @@ class GameGraphicManager
 {
 public:
 	// 使用路径下的该文件直接构造纹理对象
-	GameTexture*	LoadTextureFromFile(std::string strFilePath);
+	GameTexture*	LoadTextureFromFile(const std::string& strFilePath);
 
 	// 使用路径下的该文件直接构造字体对象
-	GameFont*		LoadFontFromFile(std::string strFilePath, int nFontSize);
+	GameFont*		LoadFontFromFile(const std::string& strFilePath, const int& nFontSize);
 
 	// 创建一个静态图片对象
 	GameImage*		CreateImage(GameTexture* pGameTexture);
@@ -147,7 +147,7 @@ public:
 	// @param fAnchorX, fAnchorY: 旋转锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void Draw(GameImage* const pGameImage,
+	void Draw(const GameImage* pGameImage,
 		const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
 		const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
@@ -162,7 +162,7 @@ public:
 	// @param fAnchorX, fAnchorY: 锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void Draw(GameImage* const pGameImage,
+	void Draw(const GameImage* pGameImage,
 		const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
 		const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
 		const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
