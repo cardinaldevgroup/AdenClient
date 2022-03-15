@@ -114,8 +114,6 @@ class GameSpriteFactory::Impl
 {
 public:
 
-public:
-
 };
 
 GameSprite* GameSpriteFactory::CreateSprite(const GameSprite::Def& defSprite)

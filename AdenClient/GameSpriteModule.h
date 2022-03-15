@@ -3,7 +3,9 @@
 
 #include "GameGraphicModule.h"
 
-class GameSprite
+#include "GameNodeModule.h"
+
+class GameSprite: public GameNode
 {
 public:
 	struct Def
