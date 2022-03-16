@@ -11,14 +11,20 @@ public:
 
 	struct Def
 	{
-		Point	pointPosition;
-		Point	pointScale;
-		int		nZOrder;
+		Point		pointPosition;
+		Point		pointScale;
+		int			nZOrder;
 
-		Point	pointAnchor;
-		float	fAngle;
+		Point		pointAnchor;
+		float		fAngle;
 
-		int		nTag;
+		Point		pointRelativePosition;
+		float		fRelativeAngle;
+		Point		pointRelativeScale;
+
+		GameNode*	pParent;
+
+		int			nTag;
 
 		Def()
 		{
@@ -28,6 +34,12 @@ public:
 
 			pointAnchor = { 0.5f, 0.5f };
 			fAngle = 0.0f;
+
+			pointRelativePosition = { 0.0f, 0.0f };
+			fRelativeAngle = 0.0f;
+			pointRelativeScale = { 1.0f, 1.0f };
+
+			pParent = nullptr;
 
 			nTag = 0;
 		}
@@ -50,6 +62,15 @@ public:
 
 	const int&		GetTag();
 	void			SetTag(const int& nTag);
+
+	const Point&	GetRelativePosition();
+	void			SetRelativePosition(const Point& pointPosition);
+
+	const float&	GetRelativeAngle();
+	void			SetRelativeAngle(const float& fAngle);
+
+	const Point&	GetRelativeScale();
+	void			SetRelativeScale(const Point& pointScale);
 
 	GameNode*		GetParent();
 	void			SetParent(GameNode* pNode);
