@@ -133,13 +133,13 @@ public:
 	// 并按照旋转规则将贴图绘制到屏幕上的指定矩形区域上
 	// @param pGameImage: 游戏图片类(静态/动态)
 	// @param fDstX, fDstY, fDstW, fDstH: 在窗口上绘制的矩形区域
-	// @param fAngle: 旋转角度
+	// @param fRotation: 旋转角度
 	// @param fAnchorX, fAnchorY: 旋转锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
 	void Draw(const GameImage* pGameImage,
 		const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-		const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
+		const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
 
 	// 读取图片某一进度对应的贴图，
@@ -148,14 +148,14 @@ public:
 	// @param pGameImage: 游戏图片类(静态/动态)
 	// @param nSrcX, nSrcY, nSrcW, nSrcH: 源图片的裁剪矩形区域
 	// @param fDstX, fDstY, fDstW, fDstH: 在窗口上绘制的矩形区域
-	// @param fAngle: 旋转角度
+	// @param fRotation: 旋转角度
 	// @param fAnchorX, fAnchorY: 锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
 	void Draw(const GameImage* pGameImage,
 		const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
 		const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-		const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
+		const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
 
 	// 清空当前窗口中的所有图像

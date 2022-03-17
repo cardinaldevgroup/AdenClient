@@ -12,7 +12,7 @@ public:
 	int			m_nZOrder;
 
 	Point		m_pointAnchor;
-	float		m_fAngle;
+	float		m_fRotation;
 
 	int			m_nTag;
 
@@ -29,7 +29,7 @@ public:
 		m_nZOrder = 0;
 
 		m_pointAnchor = { 0.5f, 0.5f };
-		m_fAngle = 0.0f;
+		m_fRotation = 0.0f;
 
 		m_nTag = 0;
 
@@ -50,6 +50,16 @@ void GameNode::SetPosition(const GameNode::Point& pointPosition)
 	m_pImpl->m_pointPosition = pointPosition;
 }
 
+const float& GameNode::GetRotation()
+{
+	return m_pImpl->m_fRotation;
+}
+
+void GameNode::SetRotation(const float& fRotation)
+{
+	m_pImpl->m_fRotation = fRotation;
+}
+
 const GameNode::Point& GameNode::GetScale()
 {
 	return m_pImpl->m_pointScale;
@@ -58,16 +68,6 @@ const GameNode::Point& GameNode::GetScale()
 void GameNode::SetScale(const GameNode::Point& pointScale)
 {
 	m_pImpl->m_pointScale = pointScale;
-}
-
-const int& GameNode::GetZOrder()
-{
-	return m_pImpl->m_nZOrder;
-}
-
-void GameNode::SetZOrder(const int& nZOrder)
-{
-	m_pImpl->m_nZOrder = nZOrder;
 }
 
 const GameNode::Point& GameNode::GetAnchor()
@@ -80,14 +80,14 @@ void GameNode::SetAnchor(const GameNode::Point& pointAnchor)
 	m_pImpl->m_pointAnchor = pointAnchor;
 }
 
-const float& GameNode::GetAngle()
+const int& GameNode::GetZOrder()
 {
-	return m_pImpl->m_fAngle;
+	return m_pImpl->m_nZOrder;
 }
 
-void GameNode::SetAngle(const float& fAngle)
+void GameNode::SetZOrder(const int& nZOrder)
 {
-	m_pImpl->m_fAngle = fAngle;
+	m_pImpl->m_nZOrder = nZOrder;
 }
 
 const int& GameNode::GetTag()
@@ -107,32 +107,16 @@ GameNode* GameNode::GetParent()
 
 void GameNode::SetParent(GameNode* pNode)
 {
-	// 若 pNode 为 nullptr，则移除原有父子关系
-	if (!pNode)
+	// 如果该节点原来已有父节点，则删除关系
+	if (GetParent())
 	{
-		if (m_pImpl->m_pParent)
-		{
-			m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = m_pImpl->m_pChildNext;
-			m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = m_pImpl->m_pChildPrev;
-		}
-		m_pImpl->m_pParent = nullptr;
-		return;
+		GetParent()->RemoveChild(this);
 	}
-
-	// 若 pNode 不为 nullptr，先移除原有父子关系，再添加新父子关系
-	if (m_pImpl->m_pParent)
+	// 如果 pNode 不为 nullptr，则添加该节点
+	if (pNode)
 	{
-		m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = m_pImpl->m_pChildNext;
-		m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = m_pImpl->m_pChildPrev;
+		pNode->AddChild(this);
 	}
-
-	m_pImpl->m_pParent = pNode;
-	m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildHead;
-	if (pNode->m_pImpl->m_pChildHead)
-	{
-		pNode->m_pImpl->m_pChildHead->m_pImpl->m_pChildPrev = this;
-	}
-	pNode->m_pImpl->m_pParent->m_pImpl->m_pChildHead = this;
 }
 
 GameNode* GameNode::GetChildHead()
@@ -145,15 +129,19 @@ GameNode* GameNode::GetChildNext()
 	return m_pImpl->m_pChildNext;
 }
 
+GameNode* GameNode::GetChildPrev()
+{
+	return m_pImpl->m_pChildPrev;
+}
+
 void GameNode::AddChild(GameNode* pNode)
 {
 	if (!pNode) return;
 
-	// 若该子节点已有父子关系，则移除这段父子关系
-	if (pNode->m_pImpl->m_pParent)
+	// 若该子节点已有父子关系，则移除这段关系
+	if (pNode->GetParent())
 	{
-		pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildNext;
-		pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = pNode->m_pImpl->m_pChildPrev;
+		pNode->GetParent()->RemoveChild(pNode);
 	}
 
 	pNode->m_pImpl->m_pParent = this;
@@ -168,19 +156,31 @@ void GameNode::AddChild(GameNode* pNode)
 void GameNode::RemoveChild(GameNode* pNode)
 {
 	if (!pNode) return;
-
+	// 若 pNode 不是该节点的子节点，则返回
 	if (pNode->m_pImpl->m_pParent != this) return;
 
 	pNode->m_pImpl->m_pParent = nullptr;
 
-	if (pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev)
+	// 如果子节点前面存在节点，则说明它并不位于链表头
+	if (pNode->GetChildPrev())
 	{
-		pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = pNode->m_pImpl->m_pChildPrev;
+		pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = pNode->GetChildNext();
+		if (pNode->GetChildNext())
+		{
+			pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = pNode->GetChildPrev();
+		}
+		return;
 	}
-	if (pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext)
+	
+	// 如果子节点前面不存在节点，则说明它位于链表头
+	if (pNode->GetChildNext())
 	{
-		pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildNext;
+		pNode->GetChildNext()->m_pImpl->m_pChildPrev = nullptr;
+		m_pImpl->m_pChildHead = pNode->GetChildNext();
+		return;
 	}
+
+	m_pImpl->m_pChildHead = nullptr;
 }
 
 GameNode::GameNode()
@@ -190,39 +190,28 @@ GameNode::GameNode()
 
 GameNode::~GameNode()
 {
-	if (m_pImpl->m_pParent)
-	{
-		m_pImpl->m_pParent->RemoveChild(this);
-	}
-
-	for (GameNode* pChild = GetChildHead(); pChild; pChild = pChild->GetChildNext())
-	{
-		GameNodeFactory::GetInstance().DestroyNode(pChild);
-	}
-
 	delete m_pImpl;
 }
 
 class GameNodeFactory::Impl
 {
 public:
-	GameNode* CloneNodeChild(GameNode* pNode, GameNode* pParent)
+	GameNode* CloneChild(GameNode* pNode, GameNode* pParent)
 	{
 		void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameNode));
 		GameNode* pCloneNode = new (pMem) GameNode();
 
-		pCloneNode->m_pImpl->m_pointPosition = pNode->m_pImpl->m_pointPosition;
-		pCloneNode->m_pImpl->m_pointScale = pNode->m_pImpl->m_pointScale;
-		pCloneNode->m_pImpl->m_nZOrder = pNode->m_pImpl->m_nZOrder;
-		pCloneNode->m_pImpl->m_pointAnchor = pNode->m_pImpl->m_pointAnchor;
-		pCloneNode->m_pImpl->m_fAngle = pNode->m_pImpl->m_fAngle;
-		pCloneNode->m_pImpl->m_nTag = pNode->m_pImpl->m_nTag;
-
-		pCloneNode->m_pImpl->m_pParent = pParent;
+		pCloneNode->SetPosition(pNode->GetPosition());
+		pCloneNode->SetRotation(pNode->GetRotation());
+		pCloneNode->SetScale(pNode->GetScale());
+		pCloneNode->SetAnchor(pNode->GetAnchor());
+		pCloneNode->SetZOrder(pNode->GetZOrder());
+		pCloneNode->SetTag(pNode->GetTag());
+		pCloneNode->SetParent(pParent);
 
 		for (GameNode* pChild = pNode->GetChildHead(); pChild; pChild = pChild->GetChildNext())
 		{
-			GameNode* pCloneChild = CloneNodeChild(pChild, pCloneNode);
+			GameNode* pCloneChild = CloneChild(pChild, pCloneNode);
 			pCloneNode->AddChild(pCloneChild);
 		}
 	}
@@ -241,12 +230,12 @@ GameNode* GameNodeFactory::CreateNode(const GameNode::Def& defNode)
 	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameNode));
 	GameNode* pNode = new (pMem) GameNode();
 
-	pNode->m_pImpl->m_pointPosition = defNode.pointPosition;
-	pNode->m_pImpl->m_pointScale = defNode.pointScale;
-	pNode->m_pImpl->m_nZOrder = defNode.nZOrder;
-	pNode->m_pImpl->m_pointAnchor = defNode.pointAnchor;
-	pNode->m_pImpl->m_fAngle = defNode.fAngle;
-	pNode->m_pImpl->m_nTag = defNode.nTag;
+	pNode->SetPosition(defNode.pointPosition);
+	pNode->SetRotation(defNode.fRotation);
+	pNode->SetScale(defNode.pointScale);
+	pNode->SetAnchor(defNode.pointAnchor);
+	pNode->SetZOrder(defNode.nZOrder);
+	pNode->SetTag(defNode.nTag);
 
 	if (defNode.pParent)
 	{
@@ -261,25 +250,29 @@ GameNode* GameNodeFactory::CloneNode(GameNode* pNode)
 	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameNode));
 	GameNode* pCloneNode = new (pMem) GameNode();
 
-	pCloneNode->m_pImpl->m_pointPosition = pNode->m_pImpl->m_pointPosition;
-	pCloneNode->m_pImpl->m_pointScale = pNode->m_pImpl->m_pointScale;
-	pCloneNode->m_pImpl->m_nZOrder = pNode->m_pImpl->m_nZOrder;
-	pCloneNode->m_pImpl->m_pointAnchor = pNode->m_pImpl->m_pointAnchor;
-	pCloneNode->m_pImpl->m_fAngle = pNode->m_pImpl->m_fAngle;
-	pCloneNode->m_pImpl->m_nTag = pNode->m_pImpl->m_nTag;
-
-	pCloneNode->m_pImpl->m_pParent = pNode->m_pImpl->m_pParent;
+	pCloneNode->SetPosition(pNode->GetPosition());
+	pCloneNode->SetRotation(pNode->GetRotation());
+	pCloneNode->SetScale(pNode->GetScale());
+	pCloneNode->SetAnchor(pNode->GetAnchor());
+	pCloneNode->SetZOrder(pNode->GetZOrder());
+	pCloneNode->SetTag(pNode->GetTag());
+	pCloneNode->SetParent(pNode->GetParent());
 
 	for (GameNode* pChild = pNode->GetChildHead(); pChild; pChild = pChild->GetChildNext())
 	{
-		GameNode* pCloneChild = m_pImpl->CloneNodeChild(pChild, pCloneNode);
-		pCloneChild->AddChild(pCloneChild);
+		GameNode* pCloneChild = m_pImpl->CloneChild(pChild, pCloneNode);
+		pCloneNode->AddChild(pCloneChild);
 	}
 }
 
 void GameNodeFactory::DestroyNode(GameNode* pNode)
 {
 	if (!pNode) return;
+
+	for (GameNode* pChild = pNode->GetChildHead(); pChild; pChild = pChild->GetChildNext())
+	{
+		DestroyNode(pChild);
+	}
 
 	pNode->~GameNode();
 	GameBlockAllocator::GetInstance().Free(pNode, sizeof(GameNode));

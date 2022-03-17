@@ -161,7 +161,7 @@ public:
 
 	SDL_Rect		m_rectSrc;
 	SDL_FRect		m_rectDst;
-	SDL_FPoint		m_pointAngle;
+	SDL_FPoint		m_pointRotation;
 
 public:
 	Impl()
@@ -178,7 +178,7 @@ public:
 
 		m_rectSrc = { 0, 0, 0, 0 };
 		m_rectDst = { 0.0f, 0.0f, 0.0f, 0.0f };
-		m_pointAngle = { 0.0f, 0.0f };
+		m_pointRotation = { 0.0f, 0.0f };
 	}
 	~Impl()
 	{
@@ -289,7 +289,7 @@ void GameGraphicManager::DestroyImage(GameImage* pGameImage)
 
 void GameGraphicManager::Draw(const GameImage* pGameImage,
 	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
+	const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
 {
 	if (!pGameImage) return;
@@ -312,16 +312,16 @@ void GameGraphicManager::Draw(const GameImage* pGameImage,
 		fDstY - fAnchorY * fDstH,
 		fDstW, fDstH
 	};
-	m_pImpl->m_pointAngle = { fAnchorX * fDstW, fAnchorY * fDstH };
+	m_pImpl->m_pointRotation = { fAnchorX * fDstW, fAnchorY * fDstH };
 
 	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
-		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fAngle, &m_pImpl->m_pointAngle, (SDL_RendererFlip)emFlip);
+		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fRotation, &m_pImpl->m_pointRotation, (SDL_RendererFlip)emFlip);
 }
 
 void GameGraphicManager::Draw(const GameImage* pGameImage,
 	const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
 	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-	const float& fAngle, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
+	const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
 {
 	if (!pGameImage) return;
@@ -341,10 +341,10 @@ void GameGraphicManager::Draw(const GameImage* pGameImage,
 		fDstY - fAnchorY * fDstH,
 		fDstW, fDstH
 	};
-	m_pImpl->m_pointAngle = { fAnchorX * fDstW, fAnchorY * fDstH };
+	m_pImpl->m_pointRotation = { fAnchorX * fDstW, fAnchorY * fDstH };
 
 	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
-		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fAngle, &m_pImpl->m_pointAngle, (SDL_RendererFlip)emFlip);
+		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fRotation, &m_pImpl->m_pointRotation, (SDL_RendererFlip)emFlip);
 }
 
 void GameGraphicManager::ClearWindow()

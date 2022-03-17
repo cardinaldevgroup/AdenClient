@@ -12,45 +12,43 @@ public:
 	struct Def
 	{
 		Point		pointPosition;
+		float		fRotation;
 		Point		pointScale;
-		int			nZOrder;
 
 		Point		pointAnchor;
-		float		fAngle;
+		int			nZOrder;
+		int			nTag;
 
 		GameNode*	pParent;
-
-		int			nTag;
 
 		Def()
 		{
 			pointPosition = { 0.0f, 0.0f };
+			fRotation = 0.0f;
 			pointScale = { 1.0f, 1.0f };
-			nZOrder = 0;
 
 			pointAnchor = { 0.5f, 0.5f };
-			fAngle = 0.0f;
+			nZOrder = 0;
+			nTag = 0;
 
 			pParent = nullptr;
-
-			nTag = 0;
 		}
 	};
 	
 	const Point&	GetPosition();
 	void			SetPosition(const Point& pointPosition);
 
+	const float&	GetRotation();
+	void			SetRotation(const float& fRotation);
+
 	const Point&	GetScale();
 	void			SetScale(const Point& pointScale);
-
-	const int&		GetZOrder();
-	void			SetZOrder(const int& nZOrder);
 
 	const Point&	GetAnchor();
 	void			SetAnchor(const Point& pointAnchor);
 
-	const float&	GetAngle();
-	void			SetAngle(const float& fAngle);
+	const int&		GetZOrder();
+	void			SetZOrder(const int& nZOrder);
 
 	const int&		GetTag();
 	void			SetTag(const int& nTag);
@@ -60,15 +58,16 @@ public:
 
 	GameNode*		GetChildHead();
 	GameNode*		GetChildNext();
+	GameNode*		GetChildPrev();
 
 	void			AddChild(GameNode* pNode);
 	void			RemoveChild(GameNode* pNode);
 
 private:
-	class Impl;
-	Impl* m_pImpl;
+	class			Impl;
+	Impl*			m_pImpl;
 
-protected:
+private:
 	GameNode();
 	~GameNode();
 
@@ -79,11 +78,8 @@ class GameNodeFactory
 {
 public:
 	GameNode*	CreateNode();
-
 	GameNode*	CreateNode(const GameNode::Def& defNode);
-
 	GameNode*	CloneNode(GameNode* pNode);
-
 	void		DestroyNode(GameNode* pNode);
 
 private:

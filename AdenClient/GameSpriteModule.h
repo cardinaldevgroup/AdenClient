@@ -5,45 +5,10 @@
 
 #include "GameNodeModule.h"
 
-class GameSprite: public GameNode
-{
-public:
-	struct Def : GameNode::Def
-	{
-		GameImage*			pImage;
-		GameImage::Flip		emFlip;
-
-		Def()
-		{
-			pImage = nullptr;
-			emFlip = GameImage::Flip::NONE;
-		}
-	};
-
-	GameImage*			GetImage();
-	void				SetImage(GameImage* const pImage);
-
-	GameImage::Flip		GetFlip();
-	void				SetFlip(GameImage::Flip emFlip);
-
-private:
-	class Impl;
-	Impl* m_pImpl;
-
-private:
-	GameSprite();
-	~GameSprite();
-
-	friend class GameSpriteFactory;
-};
-
 class GameSpriteFactory
 {
 public:
-	GameSprite*		CreateSprite();
-	GameSprite*		CreateSprite(const GameSprite::Def& defSprite);
-	GameSprite*		CloneSprite(GameSprite* pSprite);
-	void			DestroySprite(GameSprite* const pSprite);
+
 
 private:
 	class Impl;
