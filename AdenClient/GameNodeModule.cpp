@@ -3,7 +3,6 @@
 #include "GameBlockAllocator.h"
 
 #include <new>
-#include <math.h>
 
 class GameNode::Impl
 {
@@ -14,10 +13,6 @@ public:
 
 	Point		m_pointAnchor;
 	float		m_fAngle;
-
-	Point		m_pointRelativePosition;
-	float		m_fRelativeAngle;
-	Point		m_pointRelativeScale;
 
 	int			m_nTag;
 
@@ -36,10 +31,6 @@ public:
 		m_pointAnchor = { 0.5f, 0.5f };
 		m_fAngle = 0.0f;
 
-		m_pointRelativePosition = { 0.0f, 0.0f };
-		m_fRelativeAngle = 0.0f;
-		m_pointRelativeScale = { 1.0f, 1.0f };
-
 		m_nTag = 0;
 
 		m_pParent = nullptr;
@@ -57,14 +48,6 @@ const GameNode::Point& GameNode::GetPosition()
 void GameNode::SetPosition(const GameNode::Point& pointPosition)
 {
 	m_pImpl->m_pointPosition = pointPosition;
-
-	for (GameNode* pNode = m_pImpl->m_pChildHead; pNode; pNode = m_pImpl->m_pChildNext)
-	{
-		pNode->SetPosition({
-				m_pImpl->m_pointPosition.x + pNode->m_pImpl->m_pointRelativePosition.x,
-				m_pImpl->m_pointPosition.y + pNode->m_pImpl->m_pointRelativePosition.y
-			});
-	}
 }
 
 const GameNode::Point& GameNode::GetScale()
@@ -75,14 +58,6 @@ const GameNode::Point& GameNode::GetScale()
 void GameNode::SetScale(const GameNode::Point& pointScale)
 {
 	m_pImpl->m_pointScale = pointScale;
-
-	for (GameNode* pNode = m_pImpl->m_pChildHead; pNode; pNode = m_pImpl->m_pChildNext)
-	{
-		pNode->SetScale({
-				m_pImpl->m_pointScale.x * pNode->m_pImpl->m_pointRelativePosition.x,
-				m_pImpl->m_pointScale.y * pNode->m_pImpl->m_pointRelativePosition.y
-			});
-	}
 }
 
 const int& GameNode::GetZOrder()
@@ -113,23 +88,6 @@ const float& GameNode::GetAngle()
 void GameNode::SetAngle(const float& fAngle)
 {
 	m_pImpl->m_fAngle = fAngle;
-
-	for (GameNode* pNode = m_pImpl->m_pChildHead; pNode; pNode = m_pImpl->m_pChildNext)
-	{
-		// 改变父节点角度引起的子节点位置变化
-		pNode->m_pImpl->m_pointPosition =
-		{
-			m_pImpl->m_pointRelativePosition.x * cosf(fAngle) -
-			m_pImpl->m_pointRelativePosition.y * sinf(fAngle) +
-			m_pImpl->m_pointPosition.x,
-
-			m_pImpl->m_pointRelativePosition.x * sinf(fAngle) +
-			m_pImpl->m_pointRelativePosition.y * cosf(fAngle) +
-			m_pImpl->m_pointPosition.y
-		};
-
-		pNode->SetAngle(m_pImpl->m_fAngle + pNode->m_pImpl->m_fRelativeAngle);
-	}
 }
 
 const int& GameNode::GetTag()
@@ -140,36 +98,6 @@ const int& GameNode::GetTag()
 void GameNode::SetTag(const int& nTag)
 {
 	m_pImpl->m_nTag = nTag;
-}
-
-const GameNode::Point& GameNode::GetRelativePosition()
-{
-	return m_pImpl->m_pointRelativePosition;
-}
-
-void GameNode::SetRelativePosition(const Point& pointPosition)
-{
-	m_pImpl->m_pointRelativePosition = pointPosition;
-}
-
-const float& GameNode::GetRelativeAngle()
-{
-	return m_pImpl->m_fRelativeAngle;
-}
-
-void GameNode::SetRelativeAngle(const float& fAngle)
-{
-	m_pImpl->m_fRelativeAngle = fAngle;
-}
-
-const GameNode::Point& GameNode::GetRelativeScale()
-{
-	return m_pImpl->m_pointRelativeScale;
-}
-
-void GameNode::SetRelativeScale(const GameNode::Point& pointScale)
-{
-	m_pImpl->m_pointRelativeScale = pointScale;
 }
 
 GameNode* GameNode::GetParent()
@@ -212,6 +140,11 @@ GameNode* GameNode::GetChildHead()
 	return m_pImpl->m_pChildHead;
 }
 
+GameNode* GameNode::GetChildNext()
+{
+	return m_pImpl->m_pChildNext;
+}
+
 void GameNode::AddChild(GameNode* pNode)
 {
 	if (!pNode) return;
@@ -239,8 +172,15 @@ void GameNode::RemoveChild(GameNode* pNode)
 	if (pNode->m_pImpl->m_pParent != this) return;
 
 	pNode->m_pImpl->m_pParent = nullptr;
-	pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildNext;
-	pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = pNode->m_pImpl->m_pChildPrev;
+
+	if (pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev)
+	{
+		pNode->m_pImpl->m_pChildNext->m_pImpl->m_pChildPrev = pNode->m_pImpl->m_pChildPrev;
+	}
+	if (pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext)
+	{
+		pNode->m_pImpl->m_pChildPrev->m_pImpl->m_pChildNext = pNode->m_pImpl->m_pChildNext;
+	}
 }
 
 GameNode::GameNode()
@@ -250,13 +190,42 @@ GameNode::GameNode()
 
 GameNode::~GameNode()
 {
+	if (m_pImpl->m_pParent)
+	{
+		m_pImpl->m_pParent->RemoveChild(this);
+	}
+
+	for (GameNode* pChild = GetChildHead(); pChild; pChild = pChild->GetChildNext())
+	{
+		GameNodeFactory::GetInstance().DestroyNode(pChild);
+	}
+
 	delete m_pImpl;
 }
 
 class GameNodeFactory::Impl
 {
 public:
+	GameNode* CloneNodeChild(GameNode* pNode, GameNode* pParent)
+	{
+		void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameNode));
+		GameNode* pCloneNode = new (pMem) GameNode();
 
+		pCloneNode->m_pImpl->m_pointPosition = pNode->m_pImpl->m_pointPosition;
+		pCloneNode->m_pImpl->m_pointScale = pNode->m_pImpl->m_pointScale;
+		pCloneNode->m_pImpl->m_nZOrder = pNode->m_pImpl->m_nZOrder;
+		pCloneNode->m_pImpl->m_pointAnchor = pNode->m_pImpl->m_pointAnchor;
+		pCloneNode->m_pImpl->m_fAngle = pNode->m_pImpl->m_fAngle;
+		pCloneNode->m_pImpl->m_nTag = pNode->m_pImpl->m_nTag;
+
+		pCloneNode->m_pImpl->m_pParent = pParent;
+
+		for (GameNode* pChild = pNode->GetChildHead(); pNode; pNode->GetChildNext())
+		{
+			GameNode* pCloneChild = CloneNodeChild(pChild, pCloneNode);
+			pCloneNode->AddChild(pCloneChild);
+		}
+	}
 };
 
 GameNode* GameNodeFactory::CreateNode()
@@ -278,15 +247,34 @@ GameNode* GameNodeFactory::CreateNode(const GameNode::Def& defNode)
 	pNode->m_pImpl->m_pointAnchor = defNode.pointAnchor;
 	pNode->m_pImpl->m_fAngle = defNode.fAngle;
 	pNode->m_pImpl->m_nTag = defNode.nTag;
-	pNode->m_pImpl->m_pointRelativePosition = defNode.pointRelativePosition;
-	pNode->m_pImpl->m_fRelativeAngle = defNode.fRelativeAngle;
-	
+
 	if (defNode.pParent)
 	{
-		defNode.pParent->AddChild(pNode);
+		pNode->SetParent(defNode.pParent);
 	}
 
 	return pNode;
+}
+
+GameNode* GameNodeFactory::CloneNode(GameNode* pNode)
+{
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameNode));
+	GameNode* pCloneNode = new (pMem) GameNode();
+
+	pCloneNode->m_pImpl->m_pointPosition = pNode->m_pImpl->m_pointPosition;
+	pCloneNode->m_pImpl->m_pointScale = pNode->m_pImpl->m_pointScale;
+	pCloneNode->m_pImpl->m_nZOrder = pNode->m_pImpl->m_nZOrder;
+	pCloneNode->m_pImpl->m_pointAnchor = pNode->m_pImpl->m_pointAnchor;
+	pCloneNode->m_pImpl->m_fAngle = pNode->m_pImpl->m_fAngle;
+	pCloneNode->m_pImpl->m_nTag = pNode->m_pImpl->m_nTag;
+
+	pCloneNode->m_pImpl->m_pParent = pNode->m_pImpl->m_pParent;
+
+	for (GameNode* pChild = pNode->GetChildHead(); pNode; pNode->GetChildNext())
+	{
+		GameNode* pCloneChild = m_pImpl->CloneNodeChild(pChild, pCloneNode);
+		pCloneChild->AddChild(pCloneChild);
+	}
 }
 
 void GameNodeFactory::DestroyNode(GameNode* pNode)

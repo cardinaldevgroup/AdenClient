@@ -18,10 +18,6 @@ public:
 		Point		pointAnchor;
 		float		fAngle;
 
-		Point		pointRelativePosition;
-		float		fRelativeAngle;
-		Point		pointRelativeScale;
-
 		GameNode*	pParent;
 
 		int			nTag;
@@ -34,10 +30,6 @@ public:
 
 			pointAnchor = { 0.5f, 0.5f };
 			fAngle = 0.0f;
-
-			pointRelativePosition = { 0.0f, 0.0f };
-			fRelativeAngle = 0.0f;
-			pointRelativeScale = { 1.0f, 1.0f };
 
 			pParent = nullptr;
 
@@ -63,19 +55,12 @@ public:
 	const int&		GetTag();
 	void			SetTag(const int& nTag);
 
-	const Point&	GetRelativePosition();
-	void			SetRelativePosition(const Point& pointPosition);
-
-	const float&	GetRelativeAngle();
-	void			SetRelativeAngle(const float& fAngle);
-
-	const Point&	GetRelativeScale();
-	void			SetRelativeScale(const Point& pointScale);
-
 	GameNode*		GetParent();
 	void			SetParent(GameNode* pNode);
 
 	GameNode*		GetChildHead();
+	GameNode*		GetChildNext();
+
 	void			AddChild(GameNode* pNode);
 	void			RemoveChild(GameNode* pNode);
 
@@ -94,7 +79,11 @@ class GameNodeFactory
 {
 public:
 	GameNode*	CreateNode();
+
 	GameNode*	CreateNode(const GameNode::Def& defNode);
+
+	GameNode*	CloneNode(GameNode* pNode);
+
 	void		DestroyNode(GameNode* pNode);
 
 private:

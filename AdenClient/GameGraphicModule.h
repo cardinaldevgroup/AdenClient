@@ -4,16 +4,6 @@
 #include <string>
 #include <initializer_list>
 
-struct GamePoint
-{
-	float x, y;
-};
-
-struct GameSize
-{
-	float w, h;
-};
-
 class GameFont
 {
 public:
