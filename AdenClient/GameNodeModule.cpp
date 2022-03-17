@@ -220,7 +220,7 @@ public:
 
 		pCloneNode->m_pImpl->m_pParent = pParent;
 
-		for (GameNode* pChild = pNode->GetChildHead(); pNode; pNode->GetChildNext())
+		for (GameNode* pChild = pNode->GetChildHead(); pChild; pChild = pChild->GetChildNext())
 		{
 			GameNode* pCloneChild = CloneNodeChild(pChild, pCloneNode);
 			pCloneNode->AddChild(pCloneChild);
@@ -270,7 +270,7 @@ GameNode* GameNodeFactory::CloneNode(GameNode* pNode)
 
 	pCloneNode->m_pImpl->m_pParent = pNode->m_pImpl->m_pParent;
 
-	for (GameNode* pChild = pNode->GetChildHead(); pNode; pNode->GetChildNext())
+	for (GameNode* pChild = pNode->GetChildHead(); pChild; pChild = pChild->GetChildNext())
 	{
 		GameNode* pCloneChild = m_pImpl->CloneNodeChild(pChild, pCloneNode);
 		pCloneChild->AddChild(pCloneChild);

@@ -51,7 +51,10 @@ GameSprite::~GameSprite()
 class GameSpriteFactory::Impl
 {
 public:
+	GameSprite* CloneSpriteChild(GameSprite* pSprite, GameSprite* pParent)
+	{
 
+	}
 };
 
 GameSprite* GameSpriteFactory::CreateSprite()
@@ -83,7 +86,26 @@ GameSprite* GameSpriteFactory::CreateSprite(const GameSprite::Def& defSprite)
 
 GameSprite* GameSpriteFactory::CloneSprite(GameSprite* pSprite)
 {
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameNode));
+	GameSprite* pCloneSprite = new (pMem) GameSprite();
 
+	pCloneSprite->SetPosition(pSprite->GetPosition());
+	pCloneSprite->SetScale(pSprite->GetScale());
+	pCloneSprite->SetZOrder(pSprite->GetZOrder());
+	pCloneSprite->SetAnchor(pSprite->GetAnchor());
+	pCloneSprite->SetAngle(pSprite->GetAngle());
+	pCloneSprite->SetTag(pSprite->GetTag());
+
+	pCloneSprite->SetImage(pSprite->GetImage());
+	pCloneSprite->SetFlip(pSprite->GetFlip());
+
+	pCloneSprite->SetParent(pSprite->GetParent());
+
+	for (GameNode* pChild = pSprite->GetChildHead(); pSprite; pChild = pChild->GetChildNext())
+	{
+		GameNode* pCloneChild = m_pImpl->CloneSpriteChild(pChild, pCloneSprite);
+		pCloneChild->AddChild(pCloneChild);
+	}
 }
 
 void GameSpriteFactory::DestroySprite(GameSprite* const pSprite)
