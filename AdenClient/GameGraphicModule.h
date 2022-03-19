@@ -97,11 +97,14 @@ public:
 		~Frame() = default;
 	};
 
+	// 获得图片大小
+	void	GetImageSize(int& nWidth, int& nHeight);
+
 	// 获得帧纹理的总数量
-	int GetFrameCount();
+	int		GetFrameCount();
 
 	// 获得总持续时间
-	int GetDurationCount();
+	int		GetDurationCount();
 
 private:
 	class Impl;

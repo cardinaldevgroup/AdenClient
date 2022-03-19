@@ -9,10 +9,14 @@ class GameNode::Impl
 public:
 	Point		m_pointPosition;
 	Point		m_pointScale;
-	int			m_nZOrder;
+	float		m_fRotation;
+
+	Point		m_pointRelativePosition;
+	float		m_fRelativeRotation;
+	Point		m_pointRelativeScale;
 
 	Point		m_pointAnchor;
-	float		m_fRotation;
+	int			m_nZOrder;
 
 	int			m_nTag;
 
@@ -26,10 +30,14 @@ public:
 	{
 		m_pointPosition = { 0.0f, 0.0f };
 		m_pointScale = { 1.0f, 1.0f };
-		m_nZOrder = 0;
+		m_fRotation = 0.0f;
+
+		m_pointRelativePosition = { 0.0f, 0.0f };
+		m_fRelativeRotation = 0.0f;
+		m_pointRelativeScale = { 1.0f, 1.0f };
 
 		m_pointAnchor = { 0.5f, 0.5f };
-		m_fRotation = 0.0f;
+		m_nZOrder = 0;
 
 		m_nTag = 0;
 
@@ -48,6 +56,14 @@ const GameNode::Point& GameNode::GetPosition()
 void GameNode::SetPosition(const GameNode::Point& pointPosition)
 {
 	m_pImpl->m_pointPosition = pointPosition;
+
+	for (GameNode* pNode = m_pImpl->m_pChildHead; pNode; pNode = pNode->m_pImpl->m_pChildNext)
+	{
+		pNode->SetPosition({
+				m_pImpl->m_pointPosition.x + pNode->m_pImpl->m_pointRelativePosition.x,
+				m_pImpl->m_pointPosition.y + pNode->m_pImpl->m_pointRelativePosition.y
+			});
+	}
 }
 
 const float& GameNode::GetRotation()
@@ -58,6 +74,23 @@ const float& GameNode::GetRotation()
 void GameNode::SetRotation(const float& fRotation)
 {
 	m_pImpl->m_fRotation = fRotation;
+
+	for (GameNode* pNode = m_pImpl->m_pChildHead; pNode; pNode = pNode->m_pImpl->m_pChildNext)
+	{
+		// 改变父节点角度引起的子节点位置变化
+		pNode->m_pImpl->m_pointPosition =
+		{
+			pNode->m_pImpl->m_pointRelativePosition.x * cosf(fRotation) -
+			pNode->m_pImpl->m_pointRelativePosition.y * sinf(fRotation) +
+			m_pImpl->m_pointPosition.x,
+
+			pNode->m_pImpl->m_pointRelativePosition.x * sinf(fRotation) +
+			pNode->m_pImpl->m_pointRelativePosition.y * cosf(fRotation) +
+			m_pImpl->m_pointPosition.y
+		};
+
+		pNode->SetRotation(m_pImpl->m_fRotation + pNode->m_pImpl->m_fRelativeRotation);
+	}
 }
 
 const GameNode::Point& GameNode::GetScale()
@@ -68,6 +101,61 @@ const GameNode::Point& GameNode::GetScale()
 void GameNode::SetScale(const GameNode::Point& pointScale)
 {
 	m_pImpl->m_pointScale = pointScale;
+
+	for (GameNode* pNode = m_pImpl->m_pChildHead; pNode; pNode = pNode->m_pImpl->m_pChildNext)
+	{
+		pNode->SetScale({
+				m_pImpl->m_pointScale.x * pNode->m_pImpl->m_pointRelativeScale.x,
+				m_pImpl->m_pointScale.y * pNode->m_pImpl->m_pointRelativeScale.y
+			});
+	}
+}
+
+const GameNode::Point& GameNode::GetRelativePosition()
+{
+	return m_pImpl->m_pointRelativePosition;
+}
+
+void GameNode::SetRelativePosition(const Point& pointPosition)
+{
+	m_pImpl->m_pointRelativePosition = pointPosition;
+
+	if (m_pImpl->m_pParent)
+	{
+		m_pImpl->m_pointPosition.x = m_pImpl->m_pParent->m_pImpl->m_pointPosition.x + m_pImpl->m_pointRelativePosition.x;
+		m_pImpl->m_pointPosition.y = m_pImpl->m_pParent->m_pImpl->m_pointPosition.y + m_pImpl->m_pointRelativePosition.y;
+	}
+}
+
+const float& GameNode::GetRelativeAngle()
+{
+	return m_pImpl->m_fRelativeRotation;
+}
+
+void GameNode::SetRelativeRotation(const float& fRotation)
+{
+	m_pImpl->m_fRelativeRotation = fRotation;
+
+	if (m_pImpl->m_pParent)
+	{
+		m_pImpl->m_fRotation = m_pImpl->m_pParent->m_pImpl->m_fRotation + m_pImpl->m_fRelativeRotation;
+	}
+}
+
+const GameNode::Point& GameNode::GetRelativeScale()
+{
+	return m_pImpl->m_pointRelativeScale;
+}
+
+void GameNode::SetRelativeScale(const GameNode::Point& pointScale)
+{
+	m_pImpl->m_pointRelativeScale = pointScale;
+
+	if (m_pImpl->m_pParent)
+	{
+		m_pImpl->m_pointScale.x = m_pImpl->m_pParent->m_pImpl->m_pointScale.x * m_pImpl->m_pointRelativeScale.x;
+		m_pImpl->m_pointScale.y = m_pImpl->m_pParent->m_pImpl->m_pointScale.y * m_pImpl->m_pointRelativeScale.y;
+	}
 }
 
 const GameNode::Point& GameNode::GetAnchor()

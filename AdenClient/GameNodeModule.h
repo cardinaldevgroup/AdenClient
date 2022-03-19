@@ -15,6 +15,10 @@ public:
 		float		fRotation;
 		Point		pointScale;
 
+		Point		pointRelativePosition;
+		float		fRelativeAngle;
+		Point		pointRelativeScale;
+
 		Point		pointAnchor;
 		int			nZOrder;
 		int			nTag;
@@ -26,6 +30,10 @@ public:
 			pointPosition = { 0.0f, 0.0f };
 			fRotation = 0.0f;
 			pointScale = { 1.0f, 1.0f };
+
+			pointRelativePosition = { 0.0f, 0.0f };
+			fRelativeAngle = 0.0f;
+			pointRelativeScale = { 1.0f, 1.0f };
 
 			pointAnchor = { 0.5f, 0.5f };
 			nZOrder = 0;
@@ -43,6 +51,15 @@ public:
 
 	const Point&	GetScale();
 	void			SetScale(const Point& pointScale);
+
+	const Point&	GetRelativePosition();
+	void			SetRelativePosition(const Point& pointPosition);
+
+	const float&	GetRelativeAngle();
+	void			SetRelativeRotation(const float& fRotation);
+
+	const Point&	GetRelativeScale();
+	void			SetRelativeScale(const Point& pointScale);
 
 	const Point&	GetAnchor();
 	void			SetAnchor(const Point& pointAnchor);

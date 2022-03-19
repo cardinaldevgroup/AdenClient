@@ -20,6 +20,7 @@ public:
 		Rect				rectDst;
 		GameImage::Flip		emFlip;
 		bool				bIsShown;
+
 		int					nProgress;
 		int					nPlaySpeed;
 
@@ -31,7 +32,7 @@ public:
 			emFlip = GameImage::Flip::NONE;
 			bIsShown = true;
 			nProgress = 0;
-			nPlaySpeed = 0;
+			nPlaySpeed = 1;
 		}
 	};
 
@@ -69,10 +70,11 @@ private:
 class GameSpriteManager
 {
 public:
-	GameSprite* CreateSprite();
-	void		DestroySprite(GameSprite* pSprite);
+	GameSprite*		CreateSprite(GameNode* pNode, GameImage* pImage);
+	GameSprite*		CreateSprite(const GameSprite::Def& defSprite);
+	void			DestroySprite(GameSprite* pSprite);
 
-	void		Show(GameSprite* pSprite);
+	void			Show(GameSprite* pSprite);
 
 private:
 	class	Impl;

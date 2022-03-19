@@ -145,6 +145,12 @@ public:
 	}
 };
 
+void GameImage::GetImageSize(int& nWidth, int& nHeight)
+{
+	nWidth = m_pImpl->m_pFrames[0].pGameTexture->GetWidth();
+	nHeight = m_pImpl->m_pFrames[0].pGameTexture->GetHeight();
+}
+
 int GameImage::GetFrameCount()
 {
 	return m_pImpl->m_nFrameCount;

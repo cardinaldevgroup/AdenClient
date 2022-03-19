@@ -31,7 +31,7 @@ public:
 		m_bIsShown = true;
 
 		m_nProgress = 0;
-		m_nPlaySpeed = 0;
+		m_nPlaySpeed = -1;
 	}
 };
 
@@ -48,6 +48,11 @@ GameImage* GameSprite::GetImage()
 void GameSprite::SetImage(GameImage* pImage)
 {
 	m_pImpl->m_pImage = pImage;
+
+	int nWidth = 0, nHeight = 0;
+	pImage->GetImageSize(nWidth, nHeight);
+	m_pImpl->m_rectDst.fWidth = (float)nWidth;
+	m_pImpl->m_rectDst.fHeight = (float)nHeight;
 }
 
 const GameSprite::Rect& GameSprite::GetRect()
@@ -114,23 +119,61 @@ class GameSpriteManager::Impl
 {
 public:
 	// 摄像头相关数据
-	GameNode::Point m_pointCameraPosition;
+	GameNode::Point	m_pointCameraPosition;
 
-	float m_fZoom;
-	float m_fZoomSpeed;
-	float m_fZoomDeceleration;
+	float			m_fZoom;
+	float			m_fZoomSpeed;
+	float			m_fZoomDeceleration;
 
-	float m_fZoomUpperLimit;
-	float m_fZoomLowerLimit;
+	float			m_fZoomUpperLimit;
+	float			m_fZoomLowerLimit;
 
 	// 计算中使用到的临时变量
-	int m_nWindowWidth, m_nWindowHeight;
+	int				m_nWindowWidth;
+	int				m_nWindowHeight;
+
+public:
+	Impl()
+	{
+		m_pointCameraPosition = { 0.0f, 0.0f };
+		m_fZoom = 1.0f;
+		m_fZoomSpeed = 0.0f;
+		m_fZoomDeceleration = 0.0f;
+		m_fZoomUpperLimit = 10.0f;
+		m_fZoomLowerLimit = 0.1f;
+
+		GameGraphicManager::GetInstance().GetWindowSize(m_nWindowWidth, m_nWindowHeight);
+	}
 };
 
-GameSprite* GameSpriteManager::CreateSprite()
+GameSprite* GameSpriteManager::CreateSprite(GameNode* pNode, GameImage* pImage)
 {
 	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameSprite));
 	GameSprite* pSprite = new (pMem) GameSprite();
+
+	pSprite->m_pImpl->m_pNode = pNode;
+	pSprite->SetImage(pImage);
+
+	int nWidth = 0, nHeight = 0;
+	pImage->GetImageSize(nWidth, nHeight);
+	pSprite->SetRect({ (float)nWidth, (float)nHeight });
+
+	return pSprite;
+}
+
+GameSprite* GameSpriteManager::CreateSprite(const GameSprite::Def& defSprite)
+{
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameSprite));
+	GameSprite* pSprite = new (pMem) GameSprite();
+
+	pSprite->m_pImpl->m_pNode = defSprite.pNode;
+
+	pSprite->SetImage(defSprite.pImage);
+	pSprite->SetRect(defSprite.rectDst);
+	pSprite->SetFlip(defSprite.emFlip);
+	pSprite->SetShown(defSprite.bIsShown);
+	pSprite->SetProgress(defSprite.nProgress);
+	pSprite->SetPlaySpeed(defSprite.nPlaySpeed);
 
 	return pSprite;
 }
@@ -148,11 +191,18 @@ void GameSpriteManager::Show(GameSprite* pSprite)
 	GameGraphicManager::GetInstance().GetWindowSize(m_pImpl->m_nWindowWidth, m_pImpl->m_nWindowHeight);
 
 	GameGraphicManager::GetInstance().Draw(pSprite->GetImage(),
-		((pSprite->GetNode()->GetPosition().x - m_pImpl->m_pointCameraPosition.x) * 100.0f + m_pImpl->m_nWindowWidth / 2) * m_pImpl->m_fZoom,
-		(m_pImpl->m_pointCameraPosition.y - ((pSprite->GetNode()->GetPosition().y - m_pImpl->m_pointCameraPosition.y) * 100.0f)) * m_pImpl->m_fZoom,
-		pSprite->GetRect().fWidth * m_pImpl->m_fZoom, pSprite->GetRect().fHeight * m_pImpl->m_fZoom,
-		360.0f - pSprite->GetNode()->GetRotation() * 180.0f * 3.14159265359f,
+
+		((pSprite->GetNode()->GetPosition().x * pSprite->GetNode()->GetScale().x - m_pImpl->m_pointCameraPosition.x) * 100.0f + m_pImpl->m_nWindowWidth / 2)
+		* m_pImpl->m_fZoom,
+		(m_pImpl->m_nWindowHeight / 2 - ((pSprite->GetNode()->GetPosition().y * pSprite->GetNode()->GetScale().y - m_pImpl->m_pointCameraPosition.y) * 100.0f))
+		* m_pImpl->m_fZoom,
+
+		pSprite->GetRect().fWidth * pSprite->GetNode()->GetScale().x * m_pImpl->m_fZoom,
+		pSprite->GetRect().fHeight * pSprite->GetNode()->GetScale().y * m_pImpl->m_fZoom,
+
+		360.0f - pSprite->GetNode()->GetRotation() * 180.0f / 3.14159265359f,
 		pSprite->GetNode()->GetAnchor().x, pSprite->GetNode()->GetAnchor().y, pSprite->GetFlip(),
+
 		pSprite->m_pImpl->m_nProgress
 	);
 
@@ -162,7 +212,7 @@ void GameSpriteManager::Show(GameSprite* pSprite)
 	}
 	else
 	{
-		pSprite->SetProgress(pSprite->GetImage()->GetDurationCount() - (pSprite->GetProgress() + pSprite->GetPlaySpeed()));
+		pSprite->SetProgress(pSprite->GetImage()->GetDurationCount() + pSprite->GetProgress() + pSprite->GetPlaySpeed());
 	}
 }
 
