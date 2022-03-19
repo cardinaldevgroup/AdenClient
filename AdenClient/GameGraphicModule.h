@@ -88,7 +88,7 @@ public:
 		VERTICAL
 	};
 
-	// 组成图片的帧
+	// 组成图片的帧纹理
 	struct Frame
 	{
 		GameTexture*	pGameTexture;
@@ -96,6 +96,12 @@ public:
 
 		~Frame() = default;
 	};
+
+	// 获得帧纹理的总数量
+	int GetFrameCount();
+
+	// 获得总持续时间
+	int GetDurationCount();
 
 private:
 	class Impl;
@@ -137,7 +143,7 @@ public:
 	// @param fAnchorX, fAnchorY: 旋转锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void Draw(const GameImage* pGameImage,
+	void			Draw(GameImage* pGameImage,
 		const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
 		const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
@@ -152,17 +158,21 @@ public:
 	// @param fAnchorX, fAnchorY: 锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void Draw(const GameImage* pGameImage,
+	void			Draw(GameImage* pGameImage,
 		const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
 		const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
 		const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
 
 	// 清空当前窗口中的所有图像
-	void ClearWindow();
+	void			ClearWindow();
 
 	// 将绘制在缓存区中的图像展现在窗口上
-	void PresentWindow();
+	void			PresentWindow();
+
+	void			GetWindowSize(int& nWidth, int& nHeight);
+
+	void			SetWindowSize(int nWidth, int nHeight);
 
 private:
 	class Impl;
