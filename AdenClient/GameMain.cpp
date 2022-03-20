@@ -34,12 +34,13 @@ int main(int argc, char* argv[])
 	AdenPlayer test2;
 
 	test2.pNode->SetParent(test1.pNode);
-	test2.pNode->SetRelativePosition({2.0f, 2.0f});
-
-	test1.pNode->SetRotation(0.5f);
+	test2.pNode->SetRelativePosition({5.0f, 5.0f});
+	test2.pNode->SetRelativeRotation(3.14159f / 2);
 
 	std::chrono::duration<double> dFrameTime(0.0);
 	std::chrono::duration<double> dSleepAdjust(0.0);
+
+	float fRotation = 0.0f;
 
 	while (true)
 	{
@@ -48,6 +49,10 @@ int main(int argc, char* argv[])
 		GameGraphicManager::GetInstance().ClearWindow();
 		GameSpriteManager::GetInstance().Show(test1.pSprite);
 		GameSpriteManager::GetInstance().Show(test2.pSprite);
+
+		fRotation += 0.01f;
+		test1.pNode->SetRotation(fRotation);
+
 		GameGraphicManager::GetInstance().PresentWindow();
 
 		// 算出应当休眠的时间
