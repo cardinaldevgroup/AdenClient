@@ -8,84 +8,73 @@
 
 #include <SDL.h>
 
-class GameEventBase::Impl
+class GameEvent::Impl
 {
 public:
 	std::vector<void*>					m_vecEvents;
-	std::set<GameEventBase::Listener*>	m_setListeners;
+	std::set<GameEvent::Listener*>	m_setListeners;
 };
 
-GameEventBase::Listener* GameEventBase::Register(std::function<void(void*)> funcCallback, uint16_t nOrder)
+void GameEvent::Notify()
 {
-	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameEventBase::Listener));
+	for (std::vector<void*>::iterator iterEvent = m_pImpl->m_vecEvents.begin();
+		iterEvent != m_pImpl->m_vecEvents.end(); iterEvent++)
+	{
+		for (std::set<GameEvent::Listener*>::iterator iterListener = m_pImpl->m_setListeners.begin();
+			iterListener != m_pImpl->m_setListeners.end(); iterListener++)
+		{
+			(*iterListener)->funcCallback(*iterEvent);
+		}
+	}
+	m_pImpl->m_vecEvents.clear();
+}
 
-	GameEventBase::Listener* pListener = new (pMem) GameEventBase::Listener{ funcCallback, nOrder };
+GameEvent::Listener* GameEvent::Register(std::function<void(void*)> funcCallback, uint16_t nOrder)
+{
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameEvent::Listener));
+
+	GameEvent::Listener* pListener = new (pMem) GameEvent::Listener{ funcCallback, nOrder };
 	m_pImpl->m_setListeners.insert(pListener);
 }
 
-void GameEventBase::Unregister(GameEventBase::Listener* pListener)
+void GameEvent::Unregister(GameEvent::Listener* pListener)
 {
 	m_pImpl->m_setListeners.erase(pListener);
 
-	GameBlockAllocator::GetInstance().Free(pListener, sizeof(GameEventBase::Listener));
+	GameBlockAllocator::GetInstance().Free(pListener, sizeof(GameEvent::Listener));
 }
 
-GameEventBase::GameEventBase()
+GameEvent::GameEvent()
 {
 	m_pImpl = new Impl();
 }
 
-GameEventBase::~GameEventBase()
+GameEvent::~GameEvent()
 {
 	delete m_pImpl;
 }
 
-void GameKeyboard::Notify()
+void GameKeyboard::PushEvent(Event* pEvent)
+{
+	
+}
+
+void GameMouseButton::PushEvent(Event* pEvent)
 {
 
 }
 
-void GameKeyboard::PushEvent(void* pEvent)
+void GameMouseMotion::PushEvent(Event* pEvent)
 {
 
 }
 
-void GameMouseButton::Notify()
+void GameMouseWheel::PushEvent(Event* pEvent)
 {
 
 }
 
-void GameMouseButton::PushEvent(void* pEvent)
-{
-
-}
-
-void GameMouseMotion::Notify()
-{
-
-}
-
-void GameMouseMotion::PushEvent(void* pEvent)
-{
-
-}
-
-void GameMouseWheel::Notify()
-{
-
-}
-
-void GameMouseWheel::PushEvent(void* pEvent)
-{
-
-}
-
-void GameCollision::Notify()
-{
-
-}
-
-void GameCollision::PushEvent(void* pEvent)
+void GameCollision::PushEvent(Event* pEvent)
 {
 
 }
