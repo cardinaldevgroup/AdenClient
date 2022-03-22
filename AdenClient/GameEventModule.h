@@ -3,11 +3,13 @@
 
 #include <functional>
 
-class GameEvent
+class GameEventBase
 {
 public:
 	enum class Type
 	{
+		UNKNOWN = 0,
+
 		QUIT = 0x100,
 
 		KEY_DOWN = 0x300,
@@ -23,10 +25,22 @@ public:
 		USER_EVENT = 0x8000
 	};
 
+	struct BaseEvent
+	{
+		Type	emType;
+		size_t	nSize;
+
+		BaseEvent(Type type, size_t size)
+		{
+			emType = type;
+			nSize = size;
+		}
+	};
+
 	struct Listener
 	{
-		std::function<void(void*)>	funcCallback;
-		uint16_t					nOrder;
+		std::function<void(BaseEvent*)>	funcCallback;
+		uint16_t						nOrder;
 
 		bool operator<(const Listener& compare) const {
 			return nOrder < compare.nOrder;
@@ -34,20 +48,20 @@ public:
 	};
 
 	void		Notify();
-	Listener*	Register(std::function<void(void*)> funcCallback, uint16_t nOrder);
+	Listener*	Register(std::function<void(BaseEvent*)> funcCallback, uint16_t nOrder);
 	void		Unregister(Listener* pListener);
 
-private:
+protected:
 	class		Impl;
 	Impl*		m_pImpl;
 
 protected:
-	GameEvent();
-	virtual ~GameEvent();
+	GameEventBase();
+	virtual ~GameEventBase();
 };
 
 // 键盘事件
-class GameKeyboard : public GameEvent
+class GameKeyboard : public GameEventBase
 {
 public:
 	enum class Code
@@ -309,15 +323,38 @@ public:
 		KEY_AUDIOFASTFORWARD
 	};
 
-	struct Event
+	enum class Mod
 	{
-		uint16_t nType;
+		KEY_NONE = 0x0000,
+		KEY_LSHIFT = 0x0001,
+		KEY_RSHIFT = 0x0002,
+		KEY_LCTRL = 0x0040,
+		KEY_RCTRL = 0x0080,
+		KEY_LALT = 0x0100,
+		KEY_RALT = 0x0200,
+		KEY_LGUI = 0x0400,
+		KEY_RGUI = 0x0800,
+		KEY_NUM = 0x1000,
+		KEY_CAPS = 0x2000,
+		KEY_MODE = 0x4000,
+		KEY_RESERVED = 0x8000,
+
+		KEY_CTRL = KEY_LCTRL | KEY_RCTRL,
+		KEY_SHIFT = KEY_LSHIFT | KEY_RSHIFT,
+		KEY_ALT = KEY_LALT | KEY_RALT,
+		KEY_GUI = KEY_LGUI | KEY_RGUI
 	};
 
-	void PushEvent(Event* pEvent);
+	struct Event: BaseEvent
+	{
+		Code	emKeyCode;
+		Mod		emKeyMod;
+	};
+
+	void PushEvent(const Event& eventKeyboard);
 
 public:
-	virtual ~GameKeyboard();
+	virtual ~GameKeyboard() = default;
 	GameKeyboard(const GameKeyboard&) = delete;
 	GameKeyboard& operator=(const GameKeyboard&) = delete;
 	static GameKeyboard& GetInstance()
@@ -326,22 +363,22 @@ public:
 		return instance;
 	}
 private:
-	GameKeyboard();
+	GameKeyboard() = default;
 };
 
 // 鼠标按键事件
-class GameMouseButton : public GameEvent
+class GameMouseButton : public GameEventBase
 {
 public:
 	struct Event
 	{
-		uint16_t nType;
+		Type emType;
 	};
 
 	void PushEvent(Event* pEvent);
 
 public:
-	virtual ~GameMouseButton();
+	virtual ~GameMouseButton() = default;
 	GameMouseButton(const GameMouseButton&) = delete;
 	GameMouseButton& operator=(const GameMouseButton&) = delete;
 	static GameMouseButton& GetInstance()
@@ -350,22 +387,22 @@ public:
 		return instance;
 	}
 private:
-	GameMouseButton();
+	GameMouseButton() = default;
 };
 
 // 鼠标移动事件
-class GameMouseMotion : public GameEvent
+class GameMouseMotion : public GameEventBase
 {
 public:
 	struct Event
 	{
-		uint16_t nType;
+		Type emType;
 	};
 
 	void PushEvent(Event* pEvent);
 
 public:
-	virtual ~GameMouseMotion();
+	virtual ~GameMouseMotion() = default;
 	GameMouseMotion(const GameMouseMotion&) = delete;
 	GameMouseMotion& operator=(const GameMouseMotion&) = delete;
 	static GameMouseMotion& GetInstance()
@@ -374,22 +411,22 @@ public:
 		return instance;
 	}
 private:
-	GameMouseMotion();
+	GameMouseMotion() = default;
 };
 
 // 鼠标滚轮事件
-class GameMouseWheel : public GameEvent
+class GameMouseWheel : public GameEventBase
 {
 public:
 	struct Event
 	{
-		uint16_t nType;
+		Type emType;
 	};
 
 	void PushEvent(Event* pEvent);
 
 public:
-	virtual ~GameMouseWheel();
+	virtual ~GameMouseWheel() = default;
 	GameMouseWheel(const GameMouseWheel&) = delete;
 	GameMouseWheel& operator=(const GameMouseWheel&) = delete;
 	static GameMouseWheel& GetInstance()
@@ -398,22 +435,22 @@ public:
 		return instance;
 	}
 private:
-	GameMouseWheel();
+	GameMouseWheel() = default;
 };
 
 // 碰撞事件
-class GameCollision : public GameEvent
+class GameCollision : public GameEventBase
 {
 public:
 	struct Event
 	{
-		uint16_t nType;
+		Type emType;
 	};
 
 	void PushEvent(Event* pEvent);
 
 public:
-	virtual ~GameCollision();
+	virtual ~GameCollision() = default;
 	GameCollision(const GameCollision&) = delete;
 	GameCollision& operator=(const GameCollision&) = delete;
 	static GameCollision& GetInstance()
@@ -422,7 +459,7 @@ public:
 		return instance;
 	}
 private:
-	GameCollision();
+	GameCollision() = default;
 };
 
 #endif // !_GAME_EVENT_MODULE_H_

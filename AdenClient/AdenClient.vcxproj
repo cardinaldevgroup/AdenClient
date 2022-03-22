@@ -23,6 +23,7 @@
     <ClCompile Include="GameEventModule.cpp" />
     <ClCompile Include="GameGraphicModule.cpp" />
     <ClCompile Include="GameFileIO.cpp" />
+    <ClCompile Include="GameInputModule.cpp" />
     <ClCompile Include="GameMain.cpp" />
     <ClCompile Include="GameMediaModule.cpp" />
     <ClCompile Include="GameModModule.cpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="GameEventModule.h" />
     <ClInclude Include="GameGraphicModule.h" />
     <ClInclude Include="GameFileIO.h" />
+    <ClInclude Include="GameInputModule.h" />
     <ClInclude Include="GameMediaModule.h" />
     <ClInclude Include="GameModModule.h" />
     <ClInclude Include="GameNodeModule.h" />

@@ -42,6 +42,9 @@
     <ClCompile Include="GameNodeModule.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="GameInputModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameBlockAllocator.h">
@@ -72,6 +75,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="GameNodeModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameInputModule.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

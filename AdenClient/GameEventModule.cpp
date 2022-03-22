@@ -8,55 +8,58 @@
 
 #include <SDL.h>
 
-class GameEvent::Impl
+class GameEventBase::Impl
 {
 public:
-	std::vector<void*>					m_vecEvents;
-	std::set<GameEvent::Listener*>	m_setListeners;
+	std::vector<BaseEvent*>		m_vecEvents;
+	std::set<Listener*>			m_setListeners;
 };
 
-void GameEvent::Notify()
+void GameEventBase::Notify()
 {
-	for (std::vector<void*>::iterator iterEvent = m_pImpl->m_vecEvents.begin();
+	for (std::vector<BaseEvent*>::iterator iterEvent = m_pImpl->m_vecEvents.begin();
 		iterEvent != m_pImpl->m_vecEvents.end(); iterEvent++)
 	{
-		for (std::set<GameEvent::Listener*>::iterator iterListener = m_pImpl->m_setListeners.begin();
+		for (std::set<GameEventBase::Listener*>::iterator iterListener = m_pImpl->m_setListeners.begin();
 			iterListener != m_pImpl->m_setListeners.end(); iterListener++)
 		{
 			(*iterListener)->funcCallback(*iterEvent);
 		}
+		GameBlockAllocator::GetInstance().Free(*iterEvent, (*iterEvent)->nSize);
 	}
 	m_pImpl->m_vecEvents.clear();
 }
 
-GameEvent::Listener* GameEvent::Register(std::function<void(void*)> funcCallback, uint16_t nOrder)
+GameEventBase::Listener* GameEventBase::Register(std::function<void(BaseEvent*)> funcCallback, uint16_t nOrder)
 {
-	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameEvent::Listener));
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameEventBase::Listener));
 
-	GameEvent::Listener* pListener = new (pMem) GameEvent::Listener{ funcCallback, nOrder };
+	GameEventBase::Listener* pListener = new (pMem) GameEventBase::Listener{ funcCallback, nOrder };
 	m_pImpl->m_setListeners.insert(pListener);
 }
 
-void GameEvent::Unregister(GameEvent::Listener* pListener)
+void GameEventBase::Unregister(GameEventBase::Listener* pListener)
 {
 	m_pImpl->m_setListeners.erase(pListener);
 
-	GameBlockAllocator::GetInstance().Free(pListener, sizeof(GameEvent::Listener));
+	GameBlockAllocator::GetInstance().Free(pListener, sizeof(GameEventBase::Listener));
 }
 
-GameEvent::GameEvent()
+GameEventBase::GameEventBase()
 {
 	m_pImpl = new Impl();
 }
 
-GameEvent::~GameEvent()
+GameEventBase::~GameEventBase()
 {
 	delete m_pImpl;
 }
 
-void GameKeyboard::PushEvent(Event* pEvent)
+void GameKeyboard::PushEvent(const Event& eventKeyboard)
 {
-	
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Event));
+	Event* pEvent = new (pMem) Event(eventKeyboard);
+	m_pImpl->m_vecEvents.push_back(pEvent);
 }
 
 void GameMouseButton::PushEvent(Event* pEvent)
