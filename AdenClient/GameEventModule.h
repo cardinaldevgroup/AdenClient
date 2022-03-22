@@ -376,12 +376,13 @@ private:
 class GameMouseButton : public GameEventManager
 {
 public:
-	struct Event
+	struct Event: BaseEvent
 	{
-		Type emType;
+		int32_t x, y;
+		uint8_t nClicks;
 	};
 
-	void PushEvent(Event* pEvent);
+	void PushEvent(const Event& eventMouseButton);
 
 public:
 	virtual ~GameMouseButton() = default;
@@ -400,12 +401,12 @@ private:
 class GameMouseMotion : public GameEventManager
 {
 public:
-	struct Event
+	struct Event : BaseEvent
 	{
-		Type emType;
+
 	};
 
-	void PushEvent(Event* pEvent);
+	void PushEvent(const Event& eventMouseMotion);
 
 public:
 	virtual ~GameMouseMotion() = default;
@@ -424,12 +425,12 @@ private:
 class GameMouseWheel : public GameEventManager
 {
 public:
-	struct Event
+	struct Event : BaseEvent
 	{
-		Type emType;
+
 	};
 
-	void PushEvent(Event* pEvent);
+	void PushEvent(const Event& eventMouseWheel);
 
 public:
 	virtual ~GameMouseWheel() = default;
@@ -448,12 +449,12 @@ private:
 class GameCollision : public GameEventManager
 {
 public:
-	struct Event
+	struct Event : BaseEvent
 	{
-		Type emType;
+
 	};
 
-	void PushEvent(Event* pEvent);
+	void PushEvent(const Event& eventCollision);
 
 public:
 	virtual ~GameCollision() = default;

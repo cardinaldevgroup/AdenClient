@@ -36,6 +36,8 @@ GameEventManager::Listener* GameEventManager::Register(std::function<void(BaseEv
 
 	GameEventManager::Listener* pListener = new (pMem) GameEventManager::Listener{ funcCallback, nOrder };
 	m_pImpl->m_setListeners.insert(pListener);
+
+	return pListener;
 }
 
 void GameEventManager::Unregister(GameEventManager::Listener* pListener)
@@ -62,22 +64,30 @@ void GameKeyboard::PushEvent(const Event& eventKeyboard)
 	m_pImpl->m_vecEvents.push_back(pEvent);
 }
 
-void GameMouseButton::PushEvent(Event* pEvent)
+void GameMouseButton::PushEvent(const Event& eventMouseButton)
 {
-
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Event));
+	Event* pEvent = new (pMem) Event(eventMouseButton);
+	m_pImpl->m_vecEvents.push_back(pEvent);
 }
 
-void GameMouseMotion::PushEvent(Event* pEvent)
+void GameMouseMotion::PushEvent(const Event& eventMouseMotion)
 {
-
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Event));
+	Event* pEvent = new (pMem) Event(eventMouseMotion);
+	m_pImpl->m_vecEvents.push_back(pEvent);
 }
 
-void GameMouseWheel::PushEvent(Event* pEvent)
+void GameMouseWheel::PushEvent(const Event& eventMouseWheel)
 {
-
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Event));
+	Event* pEvent = new (pMem) Event(eventMouseWheel);
+	m_pImpl->m_vecEvents.push_back(pEvent);
 }
 
-void GameCollision::PushEvent(Event* pEvent)
+void GameCollision::PushEvent(const Event& eventCollision)
 {
-
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Event));
+	Event* pEvent = new (pMem) Event(eventCollision);
+	m_pImpl->m_vecEvents.push_back(pEvent);
 }

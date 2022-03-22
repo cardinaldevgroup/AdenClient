@@ -20,6 +20,14 @@ public:
 	{
 		pNode = GameNodeFactory::GetInstance().CreateNode();
 		pNode->SetScale({ 0.2f, 0.2f });
+
+		GameTexture* pTexture1 = GameGraphicManager::GetInstance().LoadTextureFromFile("resource//1.png");
+		GameTexture* pTexture2 = GameGraphicManager::GetInstance().LoadTextureFromFile("resource//2.png");
+		GameTexture* pTexture3 = GameGraphicManager::GetInstance().LoadTextureFromFile("resource//3.png");
+
+		GameImage* pImage = GameGraphicManager::GetInstance().CreateImage({ { pTexture1, 5 }, { pTexture2, 5 }, { pTexture3, 5 } });
+
+		pSprite = GameSpriteManager::GetInstance().CreateSprite(pNode, pImage);
 	}
 };
 
@@ -40,7 +48,7 @@ int main(int argc, char* argv[])
 
 	GameKeyboard::GetInstance().Register([](GameEventManager::BaseEvent* theEvent) {
 		GameKeyboard::Event* pKey = (GameKeyboard::Event*)theEvent;
-		if (pKey->emKeyCode == GameKeyboard::Code::GKEY_A)
+		if (pKey->emKeyCode == GameKeyboard::Code::GKEY_A && pKey->emType == GameEventManager::Type::KEY_UP)
 		{
 			std::cout << "test A!" << std::endl;
 		}
@@ -54,6 +62,9 @@ int main(int argc, char* argv[])
 		GameKeyboard::GetInstance().Notify();
 
 		GameGraphicManager::GetInstance().ClearWindow();
+
+		GameSpriteManager::GetInstance().Show(test1.pSprite);
+		GameSpriteManager::GetInstance().Show(test2.pSprite);
 
 		fRotation += 0.01f;
 		test1.pNode->SetRotation(fRotation);
