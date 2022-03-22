@@ -12,7 +12,7 @@ private:
 	Impl* m_pImpl;
 
 public:
-	~GameInput() = default;
+	~GameInput();
 	GameInput(const GameInput&) = delete;
 	GameInput& operator=(const GameInput&) = delete;
 	static GameInput& GetInstance()

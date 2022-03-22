@@ -7,7 +7,8 @@
 class GameInput::Impl
 {
 public:
-	SDL_Event theEvent;
+	SDL_Event			theEvent;
+	GameKeyboard::Event eventKeyboard;
 };
 
 void GameInput::Update()
@@ -20,23 +21,23 @@ void GameInput::Update()
 			break;
 
 		case SDL_KEYDOWN:
-			GameKeyboard::Event eventKeyboard
+			m_pImpl->eventKeyboard = 
 			{
-				{ GameEventBase::Type::KEY_DOWN, sizeof(GameKeyboard::Event) },
+				{ GameEventManager::Type::KEY_DOWN, sizeof(GameKeyboard::Event) },
 				(GameKeyboard::Code)m_pImpl->theEvent.key.keysym.sym,
 				(GameKeyboard::Mod)m_pImpl->theEvent.key.keysym.mod
 			};
-			GameKeyboard::GetInstance().PushEvent(eventKeyboard);
+			GameKeyboard::GetInstance().PushEvent(m_pImpl->eventKeyboard);
 			break;
 
 		case SDL_KEYUP:
-			GameKeyboard::Event eventKeyboard
+			m_pImpl->eventKeyboard =
 			{
-				{ GameEventBase::Type::KEY_UP, sizeof(GameKeyboard::Event) },
+				{ GameEventManager::Type::KEY_UP, sizeof(GameKeyboard::Event) },
 				(GameKeyboard::Code)m_pImpl->theEvent.key.keysym.sym,
 				(GameKeyboard::Mod)m_pImpl->theEvent.key.keysym.mod
 			};
-			GameKeyboard::GetInstance().PushEvent(eventKeyboard);
+			GameKeyboard::GetInstance().PushEvent(m_pImpl->eventKeyboard);
 			break;
 		}
 	}

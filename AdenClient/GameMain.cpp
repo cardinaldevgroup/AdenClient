@@ -1,9 +1,13 @@
 #include <Windows.h>
 
 #include "GameSpriteModule.h"
+#include "GameInputModule.h"
+#include "GameEventModule.h"
 
 #include <chrono>
 #include <thread>
+
+#include <iostream>
 
 class AdenPlayer
 {
@@ -16,14 +20,6 @@ public:
 	{
 		pNode = GameNodeFactory::GetInstance().CreateNode();
 		pNode->SetScale({ 0.2f, 0.2f });
-
-		GameTexture* pTexture1 = GameGraphicManager::GetInstance().LoadTextureFromFile("resource//1.png");
-		GameTexture* pTexture2 = GameGraphicManager::GetInstance().LoadTextureFromFile("resource//2.png");
-		GameTexture* pTexture3 = GameGraphicManager::GetInstance().LoadTextureFromFile("resource//3.png");
-
-		GameImage* pImage = GameGraphicManager::GetInstance().CreateImage({ { pTexture1, 5 }, { pTexture2, 5 }, { pTexture3, 5 } });
-
-		pSprite = GameSpriteManager::GetInstance().CreateSprite(pNode, pImage);
 	}
 };
 
@@ -42,13 +38,22 @@ int main(int argc, char* argv[])
 
 	float fRotation = 0.0f;
 
+	GameKeyboard::GetInstance().Register([](GameEventManager::BaseEvent* theEvent) {
+		GameKeyboard::Event* pKey = (GameKeyboard::Event*)theEvent;
+		if (pKey->emKeyCode == GameKeyboard::Code::GKEY_A)
+		{
+			std::cout << "test A!" << std::endl;
+		}
+		});
+
 	while (true)
 	{
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
+		GameInput::GetInstance().Update();
+		GameKeyboard::GetInstance().Notify();
+
 		GameGraphicManager::GetInstance().ClearWindow();
-		GameSpriteManager::GetInstance().Show(test1.pSprite);
-		GameSpriteManager::GetInstance().Show(test2.pSprite);
 
 		fRotation += 0.01f;
 		test1.pNode->SetRotation(fRotation);
