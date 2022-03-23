@@ -5,6 +5,8 @@
 #include <SDL.h>
 #include <unordered_map>
 
+#include <iostream>
+
 class GameInput::Impl
 {
 public:
@@ -16,7 +18,7 @@ public:
 	GameMouseWheelEvent		m_eventMouseWheel;
 	GameCollisionEvent		m_eventCollision;
 
-	std::unordered_map<uint8_t, std::function<void(void)>> m_mapAnnouncer;
+	std::unordered_map<Uint32, std::function<void(void)> > m_mapAnnouncer;
 
 public:
 	Impl()
@@ -95,6 +97,10 @@ public:
 		m_mapAnnouncer[SDL_CONTROLLERTOUCHPADMOTION] = nullptr;
 		m_mapAnnouncer[SDL_CONTROLLERSENSORUPDATE] = nullptr;
 
+		m_mapAnnouncer[SDL_FINGERDOWN] = nullptr;
+		m_mapAnnouncer[SDL_FINGERUP] = nullptr;
+		m_mapAnnouncer[SDL_FINGERMOTION] = nullptr;
+
 		m_mapAnnouncer[SDL_DOLLARGESTURE] = nullptr;
 		m_mapAnnouncer[SDL_DOLLARRECORD] = nullptr;
 		m_mapAnnouncer[SDL_MULTIGESTURE] = nullptr;
@@ -124,7 +130,10 @@ void GameInput::Update()
 {
 	while (SDL_PollEvent(&m_pImpl->m_event))
 	{
-		m_pImpl->m_mapAnnouncer[m_pImpl->m_event.type];
+		if (m_pImpl->m_mapAnnouncer[m_pImpl->m_event.type])
+		{
+			m_pImpl->m_mapAnnouncer[m_pImpl->m_event.type]();
+		}
 	}
 }
 

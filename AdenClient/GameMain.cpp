@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
 	GameKeyboardEventManager::GetInstance().Register([](GameEvent* theEvent) {
 		GameKeyboardEvent* pKey = (GameKeyboardEvent*)theEvent;
-		if (pKey->emKeyCode == GameKeyboardEvent::Code::GKEY_A && pKey->emType == GameEvent::Type::KEY_UP)
+		if (pKey->emKeyCode == GameKeyboardEvent::Code::GKEY_A)
 		{
 			std::cout << "test A!" << std::endl;
 		}
