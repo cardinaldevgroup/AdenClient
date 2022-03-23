@@ -10,11 +10,11 @@ class GameInput::Impl
 public:
 	SDL_Event				theEvent;
 
-	GameKeyboard::Event		eventKeyboard;
-	GameMouseButton::Event	eventMouseButton;
-	GameMouseMotion::Event	eventMouseMotion;
-	GameMouseWheel::Event	eventMouseWheel;
-	GameCollision::Event	eventCollision;
+	GameKeyboardManager::Event		eventKeyboard;
+	GameMouseButtonManager::Event	eventMouseButton;
+	GameMouseMotionManager::Event	eventMouseMotion;
+	GameMouseWheelManager::Event	eventMouseWheel;
+	GameCollisionManager::Event	eventCollision;
 };
 
 void GameInput::Update()
@@ -30,22 +30,22 @@ void GameInput::Update()
 		case SDL_KEYUP:
 			m_pImpl->eventKeyboard = 
 			{
-				{ (GameEventManager::Type)m_pImpl->theEvent.type, sizeof(GameKeyboard::Event) },
-				(GameKeyboard::Code)m_pImpl->theEvent.key.keysym.sym,
-				(GameKeyboard::Mod)m_pImpl->theEvent.key.keysym.mod
+				{ (GameEventManager::Type)m_pImpl->theEvent.type, sizeof(GameKeyboardManager::Event) },
+				(GameKeyboardManager::Code)m_pImpl->theEvent.key.keysym.sym,
+				(GameKeyboardManager::Mod)m_pImpl->theEvent.key.keysym.mod
 			};
-			GameKeyboard::GetInstance().PushEvent(m_pImpl->eventKeyboard);
+			GameKeyboardManager::GetInstance().PushEvent(m_pImpl->eventKeyboard);
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			m_pImpl->eventMouseButton =
 			{
-				{ (GameEventManager::Type)m_pImpl->theEvent.type, sizeof(GameMouseButton::Event) },
+				{ (GameEventManager::Type)m_pImpl->theEvent.type, sizeof(GameMouseButtonManager::Event) },
 				m_pImpl->theEvent.button.x, m_pImpl->theEvent.button.y,
 				m_pImpl->theEvent.button.clicks
 			};
-			GameMouseButton::GetInstance().PushEvent(m_pImpl->eventMouseButton);
+			GameMouseButtonManager::GetInstance().PushEvent(m_pImpl->eventMouseButton);
 			break;
 		}
 	}

@@ -46,9 +46,9 @@ int main(int argc, char* argv[])
 
 	float fRotation = 0.0f;
 
-	GameKeyboard::GetInstance().Register([](GameEventManager::BaseEvent* theEvent) {
-		GameKeyboard::Event* pKey = (GameKeyboard::Event*)theEvent;
-		if (pKey->emKeyCode == GameKeyboard::Code::GKEY_A && pKey->emType == GameEventManager::Type::KEY_UP)
+	GameKeyboardManager::GetInstance().Register([](GameEventManager::BaseEvent* theEvent) {
+		GameKeyboardManager::Event* pKey = (GameKeyboardManager::Event*)theEvent;
+		if (pKey->emKeyCode == GameKeyboardManager::Code::GKEY_A && pKey->emType == GameEventManager::Type::KEY_UP)
 		{
 			std::cout << "test A!" << std::endl;
 		}
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
 		GameInput::GetInstance().Update();
-		GameKeyboard::GetInstance().Notify();
+		GameKeyboardManager::GetInstance().Notify();
 
 		GameGraphicManager::GetInstance().ClearWindow();
 

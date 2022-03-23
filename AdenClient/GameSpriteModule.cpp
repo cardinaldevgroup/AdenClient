@@ -192,10 +192,10 @@ void GameSpriteManager::Show(GameSprite* pSprite)
 
 	GameGraphicManager::GetInstance().Draw(pSprite->GetImage(),
 
-		((pSprite->GetNode()->GetPosition().x * pSprite->GetNode()->GetScale().x - m_pImpl->m_pointCameraPosition.x) * 100.0f + m_pImpl->m_nWindowWidth / 2)
-		* m_pImpl->m_fZoom,
-		(m_pImpl->m_nWindowHeight / 2 - ((pSprite->GetNode()->GetPosition().y * pSprite->GetNode()->GetScale().y - m_pImpl->m_pointCameraPosition.y) * 100.0f))
-		* m_pImpl->m_fZoom,
+		((pSprite->GetNode()->GetPosition().x * pSprite->GetNode()->GetScale().x - m_pImpl->m_pointCameraPosition.x)
+			* 100.0f + m_pImpl->m_nWindowWidth / 2) * m_pImpl->m_fZoom,
+		(m_pImpl->m_nWindowHeight / 2 - 
+			((pSprite->GetNode()->GetPosition().y * pSprite->GetNode()->GetScale().y - m_pImpl->m_pointCameraPosition.y) * 100.0f)) * m_pImpl->m_fZoom,
 
 		pSprite->GetRect().fWidth * pSprite->GetNode()->GetScale().x * m_pImpl->m_fZoom,
 		pSprite->GetRect().fHeight * pSprite->GetNode()->GetScale().y * m_pImpl->m_fZoom,
