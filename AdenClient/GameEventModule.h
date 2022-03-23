@@ -3,7 +3,8 @@
 
 #include <functional>
 
-class GameEventManager
+// 事件基类
+class GameEvent
 {
 public:
 	enum class Type
@@ -25,27 +26,35 @@ public:
 		USER_EVENT = 0x8000
 	};
 
-	struct BaseEvent
+	Type	emType;
+
+protected:
+	// 由于父类需要将子类从内存池中释放出来
+	// 所以需要储存事件的大小
+	size_t	nSize;
+
+public:
+	GameEvent()
 	{
-		Type	emType;
-		size_t	nSize;
+		emType = Type::UNKNOWN;
+		nSize = 0;
+	}
 
-		BaseEvent()
-		{
-			emType = Type::UNKNOWN;
-			nSize = 0;
-		}
+	GameEvent(Type type, size_t size)
+	{
+		emType = type;
+		nSize = size;
+	}
 
-		BaseEvent(Type type, size_t size)
-		{
-			emType = type;
-			nSize = size;
-		}
-	};
+	friend class GameEventManager;
+};
 
+class GameEventManager
+{
+public:
 	struct Listener
 	{
-		std::function<void(BaseEvent*)>	funcCallback;
+		std::function<void(GameEvent*)>	funcCallback;
 		uint16_t						nOrder;
 
 		bool operator<(const Listener& compare) const {
@@ -54,7 +63,7 @@ public:
 	};
 
 	void		Notify();
-	Listener*	Register(std::function<void(BaseEvent*)> funcCallback, uint16_t nOrder = 0);
+	Listener*	Register(std::function<void(GameEvent*)> funcCallback, uint16_t nOrder = 0);
 	void		Unregister(Listener* pListener);
 
 protected:
@@ -67,9 +76,9 @@ protected:
 };
 
 // 键盘事件
-class GameKeyboardManager : public GameEventManager
+
+struct GameKeyboardEvent: GameEvent
 {
-public:
 	enum class Code
 	{
 		GKEY_RETURN = '\r',
@@ -328,7 +337,6 @@ public:
 		GKEY_AUDIOREWIND,
 		GKEY_AUDIOFASTFORWARD
 	};
-
 	enum class Mod
 	{
 		GKEY_NONE = 0x0000,
@@ -351,124 +359,125 @@ public:
 		GKEY_GUI = GKEY_LGUI | GKEY_RGUI
 	};
 
-	struct Event: BaseEvent
-	{
-		Code	emKeyCode;
-		Mod		emKeyMod;
-	};
+	Code	emKeyCode;
+	Mod		emKeyMod;
+};
 
-	void PushEvent(const Event& eventKeyboard);
+class GameKeyboardEventManager : public GameEventManager
+{
+public:
+	void PushEvent(GameKeyboardEvent* eventKeyboard);
 
 public:
-	virtual ~GameKeyboardManager() = default;
-	GameKeyboardManager(const GameKeyboardManager&) = delete;
-	GameKeyboardManager& operator=(const GameKeyboardManager&) = delete;
-	static GameKeyboardManager& GetInstance()
+	virtual ~GameKeyboardEventManager() = default;
+	GameKeyboardEventManager(const GameKeyboardEventManager&) = delete;
+	GameKeyboardEventManager& operator=(const GameKeyboardEventManager&) = delete;
+	static GameKeyboardEventManager& GetInstance()
 	{
-		static GameKeyboardManager instance;
+		static GameKeyboardEventManager instance;
 		return instance;
 	}
 private:
-	GameKeyboardManager() = default;
+	GameKeyboardEventManager() = default;
 };
 
 // 鼠标按键事件
-class GameMouseButtonManager : public GameEventManager
+struct GameMouseButtonEvent :GameEvent
+{
+	int32_t x, y;
+	uint8_t nClicks;
+};
+
+class GameMouseButtonEventManager : public GameEventManager
 {
 public:
-	struct Event: BaseEvent
-	{
-		int32_t x, y;
-		uint8_t nClicks;
-	};
-
-	void PushEvent(const Event& eventMouseButton);
+	void PushEvent(GameMouseButtonEvent* eventMouseButton);
 
 public:
-	virtual ~GameMouseButtonManager() = default;
-	GameMouseButtonManager(const GameMouseButtonManager&) = delete;
-	GameMouseButtonManager& operator=(const GameMouseButtonManager&) = delete;
-	static GameMouseButtonManager& GetInstance()
+	virtual ~GameMouseButtonEventManager() = default;
+	GameMouseButtonEventManager(const GameMouseButtonEventManager&) = delete;
+	GameMouseButtonEventManager& operator=(const GameMouseButtonEventManager&) = delete;
+	static GameMouseButtonEventManager& GetInstance()
 	{
-		static GameMouseButtonManager instance;
+		static GameMouseButtonEventManager instance;
 		return instance;
 	}
 private:
-	GameMouseButtonManager() = default;
+	GameMouseButtonEventManager() = default;
 };
 
 // 鼠标移动事件
-class GameMouseMotionManager : public GameEventManager
+struct GameMouseMotionEvent: GameEvent
+{
+	int32_t x, y;
+	int32_t xRel, yRel;
+};
+
+class GameMouseMotionEventManager : public GameEventManager
 {
 public:
-	struct Event : BaseEvent
-	{
-		int32_t x, y;
-		int32_t xRel;
-		int32_t yRel;
-	};
-
-	void PushEvent(const Event& eventMouseMotion);
+	void PushEvent(GameMouseMotionEvent* eventMouseMotion);
 
 public:
-	virtual ~GameMouseMotionManager() = default;
-	GameMouseMotionManager(const GameMouseMotionManager&) = delete;
-	GameMouseMotionManager& operator=(const GameMouseMotionManager&) = delete;
-	static GameMouseMotionManager& GetInstance()
+	virtual ~GameMouseMotionEventManager() = default;
+	GameMouseMotionEventManager(const GameMouseMotionEventManager&) = delete;
+	GameMouseMotionEventManager& operator=(const GameMouseMotionEventManager&) = delete;
+	static GameMouseMotionEventManager& GetInstance()
 	{
-		static GameMouseMotionManager instance;
+		static GameMouseMotionEventManager instance;
 		return instance;
 	}
 private:
-	GameMouseMotionManager() = default;
+	GameMouseMotionEventManager() = default;
 };
 
 // 鼠标滚轮事件
-class GameMouseWheelManager : public GameEventManager
+struct GameMouseWheelEvent : GameEvent
+{
+
+};
+
+class GameMouseWheelEventManager : public GameEventManager
 {
 public:
-	struct Event : BaseEvent
-	{
 
-	};
-
-	void PushEvent(const Event& eventMouseWheel);
+	void PushEvent(GameMouseWheelEvent* eventMouseWheel);
 
 public:
-	virtual ~GameMouseWheelManager() = default;
-	GameMouseWheelManager(const GameMouseWheelManager&) = delete;
-	GameMouseWheelManager& operator=(const GameMouseWheelManager&) = delete;
-	static GameMouseWheelManager& GetInstance()
+	virtual ~GameMouseWheelEventManager() = default;
+	GameMouseWheelEventManager(const GameMouseWheelEventManager&) = delete;
+	GameMouseWheelEventManager& operator=(const GameMouseWheelEventManager&) = delete;
+	static GameMouseWheelEventManager& GetInstance()
 	{
-		static GameMouseWheelManager instance;
+		static GameMouseWheelEventManager instance;
 		return instance;
 	}
 private:
-	GameMouseWheelManager() = default;
+	GameMouseWheelEventManager() = default;
 };
 
 // 碰撞事件
-class GameCollisionManager : public GameEventManager
+struct GameCollisionEvent: GameEvent
+{
+
+};
+
+class GameCollisionEventManager : public GameEventManager
 {
 public:
-	struct Event : BaseEvent
-	{
-
-	};
-
-	void PushEvent(const Event& eventCollision);
+	void PushEvent(GameCollisionEvent* eventCollision);
 
 public:
-	virtual ~GameCollisionManager() = default;
-	GameCollisionManager(const GameCollisionManager&) = delete;
-	GameCollisionManager& operator=(const GameCollisionManager&) = delete;
-	static GameCollisionManager& GetInstance()
+	virtual ~GameCollisionEventManager() = default;
+	GameCollisionEventManager(const GameCollisionEventManager&) = delete;
+	GameCollisionEventManager& operator=(const GameCollisionEventManager&) = delete;
+	static GameCollisionEventManager& GetInstance()
 	{
-		static GameCollisionManager instance;
+		static GameCollisionEventManager instance;
 		return instance;
 	}
 private:
-	GameCollisionManager() = default;
+	GameCollisionEventManager() = default;
 };
 
 #endif // !_GAME_EVENT_MODULE_H_
