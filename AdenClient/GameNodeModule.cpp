@@ -273,12 +273,13 @@ void GameNode::RemoveChild(GameNode* pNode)
 
 GameNode::GameNode()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameNode::~GameNode()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 class GameNodeFactory::Impl
@@ -368,10 +369,11 @@ void GameNodeFactory::DestroyNode(GameNode* pNode)
 
 GameNodeFactory::GameNodeFactory()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameNodeFactory::~GameNodeFactory()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }

@@ -80,12 +80,13 @@ public:
 
 GameSound::GameSound()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameSound::~GameSound()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 class GameMediaManager::Impl
@@ -109,12 +110,13 @@ public:
 
 GameMediaManager::GameMediaManager()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameMediaManager::~GameMediaManager()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 GameMusic* GameMediaManager::LoadMusicFromFile(const std::string& strFilePath)

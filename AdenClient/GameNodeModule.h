@@ -100,8 +100,8 @@ public:
 	void		DestroyNode(GameNode* pNode);
 
 private:
-	class Impl;
-	Impl* m_pImpl;
+	class		Impl;
+	Impl*		m_pImpl;
 
 public:
 	~GameNodeFactory();

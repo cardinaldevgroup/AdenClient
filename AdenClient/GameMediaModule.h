@@ -31,7 +31,7 @@ private:
 	class Impl;
 	Impl* m_pImpl;
 
-public:
+private:
 	GameMusic();
 	~GameMusic();
 
@@ -44,7 +44,7 @@ private:
 	class Impl;
 	Impl* m_pImpl;
 
-public:
+private:
 	GameSound();
 	~GameSound();
 

@@ -42,19 +42,23 @@ GameEventManager::Listener* GameEventManager::Register(std::function<void(GameEv
 
 void GameEventManager::Unregister(GameEventManager::Listener* pListener)
 {
-	m_pImpl->m_setListeners.erase(pListener);
-
-	GameBlockAllocator::GetInstance().Free(pListener, sizeof(GameEventManager::Listener));
+	if (m_pImpl->m_setListeners.find(pListener) != m_pImpl->m_setListeners.end())
+	{
+		pListener->~Listener();
+		m_pImpl->m_setListeners.erase(pListener);
+		GameBlockAllocator::GetInstance().Free(pListener, sizeof(GameEventManager::Listener));
+	}
 }
 
 GameEventManager::GameEventManager()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameEventManager::~GameEventManager()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 void GameKeyboardEventManager::PushEvent(GameKeyboardEvent* eventKeyboard)

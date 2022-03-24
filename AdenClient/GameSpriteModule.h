@@ -57,8 +57,8 @@ public:
 	void				SetPlaySpeed(int nPlaySpeed);
 
 private:
-	class		Impl;
-	Impl*		m_pImpl;
+	class				Impl;
+	Impl*				m_pImpl;
 
 private:
 	GameSprite();
@@ -77,8 +77,8 @@ public:
 	void			Show(GameSprite* pSprite);
 
 private:
-	class	Impl;
-	Impl*	m_pImpl;
+	class			Impl;
+	Impl*			m_pImpl;
 
 public:
 	~GameSpriteManager();

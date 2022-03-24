@@ -1,6 +1,8 @@
 #include "GameInputModule.h"
 
 #include "GameEventModule.h"
+#include "GameTimerModule.h"
+#include "GameBlockAllocator.h"
 
 #include <SDL.h>
 #include <unordered_map>
@@ -48,7 +50,7 @@ public:
 		m_mapAnnouncer[SDL_KEYDOWN] = [&]() {
 			m_eventKeyboard =
 			{
-				{ (GameEvent::Type)m_event.type, sizeof(GameKeyboardEvent) },
+				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(),sizeof(GameKeyboardEvent) },
 				(GameKeyboardEvent::Code)m_event.key.keysym.sym,
 				(GameKeyboardEvent::Mod)m_event.key.keysym.mod
 			};
@@ -66,7 +68,7 @@ public:
 		m_mapAnnouncer[SDL_MOUSEBUTTONDOWN] = [&]() {
 			m_eventMouseButton =
 			{
-				{ (GameEvent::Type)m_event.type, sizeof(GameMouseButtonEvent) },
+				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(),sizeof(GameMouseButtonEvent) },
 				m_event.button.x, m_event.button.y,
 				m_event.button.clicks
 			};
@@ -139,10 +141,11 @@ void GameInput::Update()
 
 GameInput::GameInput()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameInput::~GameInput()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }

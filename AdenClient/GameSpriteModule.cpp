@@ -107,12 +107,13 @@ void GameSprite::SetPlaySpeed(int nPlaySpeed)
 
 GameSprite::GameSprite()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameSprite::~GameSprite()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 class GameSpriteManager::Impl
@@ -218,10 +219,11 @@ void GameSpriteManager::Show(GameSprite* pSprite)
 
 GameSpriteManager::GameSpriteManager()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameSpriteManager::~GameSpriteManager()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }

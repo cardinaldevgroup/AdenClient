@@ -44,12 +44,13 @@ int GameTexture::GetHeight()
 
 GameTexture::GameTexture()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameTexture::~GameTexture()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 class GameFont::Impl
@@ -110,12 +111,13 @@ void GameFont::SetOutline(const int& nOutlineWidth)
 
 GameFont::GameFont()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameFont::~GameFont()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 class GameImage::Impl
@@ -163,12 +165,13 @@ int GameImage::GetDurationCount()
 
 GameImage::GameImage()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameImage::~GameImage()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }
 
 class GameGraphicManager::Impl
@@ -387,10 +390,11 @@ void GameGraphicManager::SetWindowSize(int nWidth, int nHeight)
 
 GameGraphicManager::GameGraphicManager()
 {
-	m_pImpl = new Impl();
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Impl));
+	m_pImpl = new (pMem) Impl();
 }
 
 GameGraphicManager::~GameGraphicManager()
 {
-	delete m_pImpl;
+	GameBlockAllocator::GetInstance().Free(m_pImpl, sizeof(Impl));
 }

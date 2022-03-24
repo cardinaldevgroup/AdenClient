@@ -26,23 +26,26 @@ public:
 		USER_EVENT = 0x8000
 	};
 
-	Type	emType;
+	Type		emType;
+	uint32_t	nTimestamp;
 
 protected:
 	// 由于父类需要将子类从内存池中释放出来
 	// 所以需要储存事件的大小
-	size_t	nSize;
+	size_t		nSize;
 
 public:
 	GameEvent()
 	{
 		emType = Type::UNKNOWN;
+		nTimestamp = 0;
 		nSize = 0;
 	}
 
-	GameEvent(Type type, size_t size)
+	GameEvent(Type type, uint32_t timestamp, size_t size)
 	{
 		emType = type;
+		nTimestamp = timestamp;
 		nSize = size;
 	}
 
@@ -60,6 +63,8 @@ public:
 		bool operator<(const Listener& compare) const {
 			return nOrder < compare.nOrder;
 		}
+
+		~Listener() = default;
 	};
 
 	void		Notify();

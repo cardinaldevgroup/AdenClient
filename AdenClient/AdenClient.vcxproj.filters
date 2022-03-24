@@ -45,6 +45,9 @@
     <ClCompile Include="GameInputModule.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="GameTimerModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameBlockAllocator.h">
@@ -78,6 +81,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="GameInputModule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimerModule.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

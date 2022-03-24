@@ -30,6 +30,7 @@
     <ClCompile Include="GameNodeModule.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameSpriteModule.cpp" />
+    <ClCompile Include="GameTimerModule.cpp" />
     <ClCompile Include="GameWidgetModule.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +44,7 @@
     <ClInclude Include="GameNodeModule.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GameSpriteModule.h" />
+    <ClInclude Include="GameTimerModule.h" />
     <ClInclude Include="GameWidgetModule.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -45,8 +45,8 @@ public:
 	void	SetOutline(const int& nOutlineWidth);
 
 private:
-	class Impl;
-	Impl* m_pImpl;
+	class	Impl;
+	Impl*	m_pImpl;
 
 public:
 	GameFont();
@@ -110,7 +110,7 @@ private:
 	class Impl;
 	Impl* m_pImpl;
 
-public:
+private:
 	GameImage();
 	~GameImage();
 
