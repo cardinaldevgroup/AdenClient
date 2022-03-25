@@ -81,7 +81,6 @@ protected:
 };
 
 // 键盘事件
-
 struct GameKeyboardEvent: GameEvent
 {
 	enum class Code
@@ -366,6 +365,7 @@ struct GameKeyboardEvent: GameEvent
 
 	Code	emKeyCode;
 	Mod		emKeyMod;
+	bool	bIsPressed;
 };
 
 class GameKeyboardEventManager : public GameEventManager
@@ -389,8 +389,9 @@ private:
 // 鼠标按键事件
 struct GameMouseButtonEvent :GameEvent
 {
-	int32_t x, y;
-	uint8_t nClicks;
+	int32_t		x, y;
+	uint8_t		nClicks;
+	bool		bIsPressed;
 };
 
 class GameMouseButtonEventManager : public GameEventManager
@@ -414,8 +415,9 @@ private:
 // 鼠标移动事件
 struct GameMouseMotionEvent: GameEvent
 {
-	int32_t x, y;
-	int32_t xRel, yRel;
+	int32_t		x, y;
+	int32_t		xRel, yRel;
+	bool		isPressed;
 };
 
 class GameMouseMotionEventManager : public GameEventManager
@@ -439,13 +441,19 @@ private:
 // 鼠标滚轮事件
 struct GameMouseWheelEvent : GameEvent
 {
+	enum class Direction
+	{
+		NORMAL = 0,
+		FLIPPED
+	};
 
+	int32_t		x, y;
+	Direction	emDirection;
 };
 
 class GameMouseWheelEventManager : public GameEventManager
 {
 public:
-
 	void PushEvent(GameMouseWheelEvent* eventMouseWheel);
 
 public:

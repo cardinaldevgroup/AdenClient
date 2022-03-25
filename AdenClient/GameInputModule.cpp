@@ -26,6 +26,7 @@ public:
 	Impl()
 	{
 		m_event.type = SDL_FIRSTEVENT;
+
 		m_eventKeyboard = {};
 		m_eventMouseButton = {};
 		m_eventMouseMotion = {};
@@ -50,7 +51,7 @@ public:
 		m_mapAnnouncer[SDL_KEYDOWN] = [&]() {
 			m_eventKeyboard =
 			{
-				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(),sizeof(GameKeyboardEvent) },
+				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(), sizeof(GameKeyboardEvent) },
 				(GameKeyboardEvent::Code)m_event.key.keysym.sym,
 				(GameKeyboardEvent::Mod)m_event.key.keysym.mod
 			};
@@ -62,22 +63,36 @@ public:
 		m_mapAnnouncer[SDL_KEYMAPCHANGED] = nullptr;
 
 		m_mapAnnouncer[SDL_MOUSEMOTION] = [&]() {
-		
+			m_eventMouseMotion =
+			{
+				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(), sizeof(GameMouseMotionEvent) },
+				m_event.motion.x, m_event.motion.y,
+				m_event.motion.xrel, m_event.motion.yrel,
+				(bool)m_event.motion.state
+			};
+			GameMouseMotionEventManager::GetInstance().PushEvent(&m_eventMouseMotion);
 		};
 
 		m_mapAnnouncer[SDL_MOUSEBUTTONDOWN] = [&]() {
 			m_eventMouseButton =
 			{
-				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(),sizeof(GameMouseButtonEvent) },
+				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(), sizeof(GameMouseButtonEvent) },
 				m_event.button.x, m_event.button.y,
-				m_event.button.clicks
+				m_event.button.clicks,
+				(bool)m_event.button.state
 			};
 			GameMouseButtonEventManager::GetInstance().PushEvent(&m_eventMouseButton);
 		};
 		m_mapAnnouncer[SDL_MOUSEBUTTONUP] = m_mapAnnouncer[SDL_MOUSEBUTTONDOWN];
 
 		m_mapAnnouncer[SDL_MOUSEWHEEL] = [&]() {
-		
+			m_eventMouseWheel =
+			{
+				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(), sizeof(GameMouseWheelEvent) },
+				m_event.wheel.x, m_event.wheel.y,
+				(GameMouseWheelEvent::Direction)m_event.wheel.direction
+			};
+			GameMouseWheelEventManager::GetInstance().PushEvent(&m_eventMouseWheel);
 		};
 
 		m_mapAnnouncer[SDL_JOYAXISMOTION] = nullptr;
