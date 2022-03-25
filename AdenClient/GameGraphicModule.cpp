@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL2_gfxPrimitives.h>
 #include <SDL_ttf.h>
 
 #include <new>
@@ -184,6 +185,9 @@ public:
 	SDL_FRect		m_rectDst;
 	SDL_FPoint		m_pointRotation;
 
+	SDL_Color		m_colorDraw;
+	SDL_Rect		m_rectDraw;
+
 public:
 	Impl()
 	{
@@ -311,8 +315,8 @@ void GameGraphicManager::DestroyImage(GameImage* pGameImage)
 }
 
 void GameGraphicManager::Draw(GameImage* pGameImage,
-	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-	const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
+	float fDstX, float fDstY, float fDstW, float fDstH,
+	float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
 {
 	if (!pGameImage) return;
@@ -341,9 +345,9 @@ void GameGraphicManager::Draw(GameImage* pGameImage,
 }
 
 void GameGraphicManager::Draw(GameImage* pGameImage,
-	const int& nSrcX, const int& nSrcY, const int& nSrcW, const int& nSrcH,
-	const float& fDstX, const float& fDstY, const float& fDstW, const float& fDstH,
-	const float& fRotation, const float& fAnchorX, const float& fAnchorY, GameImage::Flip emFlip,
+	int nSrcX, int nSrcY, int nSrcW, int nSrcH,
+	float fDstX, float fDstY, float fDstW, float fDstH,
+	float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
 {
 	if (!pGameImage) return;
@@ -386,6 +390,122 @@ void GameGraphicManager::GetWindowSize(int& nWidth, int& nHeight)
 void GameGraphicManager::SetWindowSize(int nWidth, int nHeight)
 {
 	SDL_SetWindowSize(m_pImpl->m_pWindow, nWidth, nHeight);
+}
+
+void GameGraphicManager::DrawPoint(int x, int y)
+{
+	SDL_RenderDrawPoint(m_pImpl->m_pRenderer, x, y);
+}
+
+void GameGraphicManager::DrawLine(int x1, int y1, int x2, int y2, uint8_t nWidth)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	if (nWidth == 1)
+	{
+		aalineRGBA(m_pImpl->m_pRenderer, x1, y1, x2, y2,
+			m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+		return;
+	}
+
+	thickLineRGBA(m_pImpl->m_pRenderer, x1, y1, x2, y2, nWidth,
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+}
+
+void GameGraphicManager::DrawRectangle(int x, int y, int w, int h, bool isFilled)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	m_pImpl->m_rectDraw = { x, y, w, h };
+
+	if (isFilled)
+	{
+		SDL_RenderFillRect(m_pImpl->m_pRenderer, &m_pImpl->m_rectDraw);
+		return;
+	}
+	SDL_RenderDrawRect(m_pImpl->m_pRenderer, &m_pImpl->m_rectDraw);
+}
+
+void GameGraphicManager::DrawRoundRectangle(int x, int y, int w, int h, int nRadius, bool isFilled)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+	
+	if (isFilled)
+	{
+		roundedBoxRGBA(m_pImpl->m_pRenderer, x, y, x + w, y + h, nRadius,
+			m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+		return;
+	}
+
+	roundedRectangleRGBA(m_pImpl->m_pRenderer, x, y, x + w, y + h, nRadius,
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+}
+
+void GameGraphicManager::DrawCircle(int x, int y, int nRadius, bool isFilled)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	if (isFilled)
+	{
+		filledCircleRGBA(m_pImpl->m_pRenderer, x, y, nRadius,
+			m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+		return;
+	}
+
+	aacircleRGBA(m_pImpl->m_pRenderer, x, y, nRadius,
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+}
+
+void GameGraphicManager::DrawEllipse(int x, int y, int nRadiusX, int nRadiusY, bool isFilled)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	if (isFilled)
+	{
+		filledEllipseRGBA(m_pImpl->m_pRenderer, x, y, nRadiusX, nRadiusY,
+			m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+		return;
+	}
+
+	aaellipseRGBA(m_pImpl->m_pRenderer, x, y, nRadiusX, nRadiusY,
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+}
+
+void GameGraphicManager::DrawPie(int x, int y, int nRadius, int nAngleStart, int nAngleEnd, bool isFilled)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	if (isFilled)
+	{
+		filledPieRGBA(m_pImpl->m_pRenderer, x, y, nRadius, nAngleStart, nAngleEnd,
+			m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+		return;
+	}
+
+	pieRGBA(m_pImpl->m_pRenderer, x, y, nRadius, nAngleStart, nAngleEnd,
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+}
+
+void GameGraphicManager::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, bool isFilled)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	if (isFilled)
+	{
+		filledTrigonRGBA(m_pImpl->m_pRenderer, x1, y1, x2, y2, x3, y3,
+			m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+		return;
+	}
+
+	aatrigonRGBA(m_pImpl->m_pRenderer, x1, y1, x2, y2, x3, y3,
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
 }
 
 GameGraphicManager::GameGraphicManager()

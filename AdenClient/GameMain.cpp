@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <thread>
+#include <SDL2_gfxPrimitives.h>
 
 #include <iostream>
 

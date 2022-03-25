@@ -13,6 +13,15 @@ class GameEventManager::Impl
 public:
 	std::vector<GameEvent*>		m_vecEvents;
 	std::set<Listener*>			m_setListeners;
+
+	Impl()
+	{
+		SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+	}
+	~Impl()
+	{
+		SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+	}
 };
 
 void GameEventManager::Notify()
