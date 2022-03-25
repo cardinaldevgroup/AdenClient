@@ -1,6 +1,7 @@
 #ifndef _GAME_GRAPHIC_MODULE_H_
 #define _GAME_GRAPHIC_MODULE_H_
 
+#include <tuple>
 #include <string>
 #include <initializer_list>
 
@@ -123,6 +124,18 @@ public:
 	// 使用路径下的该文件直接构造纹理对象
 	GameTexture*	LoadTextureFromFile(const std::string& strFilePath);
 
+	// 使用字体创建指定颜色的 Solid 文本纹理
+	GameTexture*	CreateTextSolid(GameFont* pFont, const std::string& strText,
+		uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+	// 使用字体创建指定颜色的 Blended 文本纹理
+	GameTexture*	CreateTextBlended(GameFont* pFont, const std::string& strText,
+		uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+	// 使用字体创建指定颜色的 Shaded文本纹理
+	GameTexture*	CreateTextShaded(GameFont* pFont, const std::string& strText,
+		uint8_t rFore, uint8_t gFore, uint8_t bFore, uint8_t aFore, uint8_t rBack, uint8_t gBack, uint8_t bBack, uint8_t aBack);
+
 	// 使用路径下的该文件直接构造字体对象
 	GameFont*		LoadFontFromFile(const std::string& strFilePath, const int& nFontSize);
 
@@ -131,18 +144,14 @@ public:
 	// 创建一个动态图片对象
 	GameImage*		CreateImage(const std::initializer_list<GameImage::Frame>& ilGameFrames);
 
-	GameImage*		CreateTextImageSolid();
-
-	GameImage*		CreateTextImageBlended();
-
-	GameImage*		CreateTextImageShaded();
-
 	// 析构一个纹理对象
-	void			DestroyTexture(GameTexture* pGameTexture);
+	void	DestroyTexture(GameTexture* pGameTexture);
+
 	// 析构一个字体对象
-	void			DestroyFont(GameFont* pGameFont);
+	void	DestroyFont(GameFont* pGameFont);
+
 	// 析构一个图片对象
-	void			DestroyImage(GameImage* pGameImage);
+	void	DestroyImage(GameImage* pGameImage);
 
 	// 读取图片某一进度对应的贴图，
 	// 并按照旋转规则将贴图绘制到屏幕上的指定矩形区域上
@@ -152,7 +161,7 @@ public:
 	// @param fAnchorX, fAnchorY: 旋转锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void			Draw(GameImage* pGameImage,
+	void	Draw(GameImage* pGameImage,
 		float fDstX, float fDstY, float fDstW, float fDstH,
 		float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
@@ -167,50 +176,60 @@ public:
 	// @param fAnchorX, fAnchorY: 锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void			Draw(GameImage* pGameImage,
+	void	Draw(GameImage* pGameImage,
 		int nSrcX, int nSrcY, int nSrcW, int nSrcH,
 		float fDstX, float fDstY, float fDstW, float fDstH,
 		float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
 
+	// 获取绘制的颜色
+	void	GetDrawColor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a);
+	// 设置绘制的颜色
+	void	SetDrawColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+	// 在窗口坐标系下绘制一个点
+	void	DrawPoint(int x, int y);
+
+	// 在窗口坐标系下绘制一条线
+	void	DrawLine(int x1, int y1, int x2, int y2, uint8_t nWidth = 1);
+
+	// 在窗口坐标系下绘制一个直角矩形
+	void	DrawRectangle(int x, int y, int w, int h, bool isFilled = true);
+
+	// 在窗口坐标系下绘制一个圆角矩形
+	void	DrawRoundRectangle(int x, int y, int w, int h, int nRadius, bool isFilled = true);
+
+	// 在窗口坐标系下绘制一个圆
+	void	DrawCircle(int x, int y, int nRadius, bool isFilled = true);
+
+	// 在窗口坐标系下绘制一个椭圆
+	void	DrawEllipse(int x, int y, int nRadiusX, int nRadiusY, bool isFilled = true);
+
+	// 在窗口坐标系下绘制一个扇形
+	void	DrawPie(int x, int y, int nRadius, int nAngleStart, int nAngleEnd, bool isFilled = true);
+
+	// 在窗口坐标系下绘制一个三角形
+	void	DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, bool isFilled = true);
+
+	// 在窗口坐标系下绘制一个多边形
+	void	DrawPolygon(std::initializer_list<std::tuple<int, int> > ilPoints, bool isFilled = true);
+
+	// 在窗口坐标系下绘制一个贝塞尔曲线
+	void	DrawBezier(std::initializer_list<std::tuple<int, int> > ilPoints, int nInterpolationCount);
+
 	// 清空当前窗口中的所有图像
-	void			ClearWindow();
+	void	ClearWindow();
 	// 将绘制在缓存区中的图像展现在窗口上
-	void			PresentWindow();
+	void	PresentWindow();
 
 	// 设置窗口的大小
-	void			GetWindowSize(int& nWidth, int& nHeight);
+	void	GetWindowSize(int& nWidth, int& nHeight);
 	// 获取窗口的大小
-	void			SetWindowSize(int nWidth, int nHeight);
-
-	// 获取绘制的颜色
-	void			GetDrawColor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a);
-	// 设置绘制的颜色
-	void			SetDrawColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-
-	void			DrawPoint(int x, int y);
-
-	void			DrawLine(int x1, int y1, int x2, int y2, uint8_t nWidth = 1);
-
-	void			DrawRectangle(int x, int y, int w, int h, bool isFilled = true);
-
-	void			DrawRoundRectangle(int x, int y, int w, int h, int nRadius, bool isFilled = true);
-
-	void			DrawCircle(int x, int y, int nRadius, bool isFilled = true);
-
-	void			DrawEllipse(int x, int y, int nRadiusX, int nRadiusY, bool isFilled = true);
-
-	void			DrawPie(int x, int y, int nRadius, int nAngleStart, int nAngleEnd, bool isFilled = true);
-
-	void			DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, bool isFilled = true);
-
-	void			DrawPolygon();
-
-	void			DrawBezier();
+	void	SetWindowSize(int nWidth, int nHeight);
 
 private:
-	class			Impl;
-	Impl*			m_pImpl;
+	class	Impl;
+	Impl*	m_pImpl;
 
 public:
 	~GameGraphicManager();

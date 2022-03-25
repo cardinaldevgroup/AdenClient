@@ -4,11 +4,12 @@
 #include "GameFileIO.h"
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL2_gfxPrimitives.h>
-#include <SDL_ttf.h>
 
 #include <new>
+#include <vector>
 
 class GameTexture::Impl
 {
@@ -178,15 +179,21 @@ GameImage::~GameImage()
 class GameGraphicManager::Impl
 {
 public:
-	SDL_Window*		m_pWindow;
-	SDL_Renderer*	m_pRenderer;
+	SDL_Window*				m_pWindow;
+	SDL_Renderer*			m_pRenderer;
 
-	SDL_Rect		m_rectSrc;
-	SDL_FRect		m_rectDst;
-	SDL_FPoint		m_pointRotation;
+	SDL_Rect				m_rectSrc;
+	SDL_FRect				m_rectDst;
+	SDL_FPoint				m_pointRotation;
 
-	SDL_Color		m_colorDraw;
-	SDL_Rect		m_rectDraw;
+	SDL_Color				m_colorForeground;
+	SDL_Color				m_colorBackground;
+
+	SDL_Color				m_colorDraw;
+	SDL_Rect				m_rectDraw;
+
+	std::vector<int16_t>	m_vecPointX;
+	std::vector<int16_t>	m_vecPointY;
 
 public:
 	Impl()
@@ -204,6 +211,12 @@ public:
 		m_rectSrc = { 0, 0, 0, 0 };
 		m_rectDst = { 0.0f, 0.0f, 0.0f, 0.0f };
 		m_pointRotation = { 0.0f, 0.0f };
+
+		m_colorForeground = { 0, 0, 0, 0 };
+		m_colorBackground = { 0, 0, 0, 0 };
+
+		m_colorDraw = { 0, 0, 0, 0 };
+		m_rectDraw = { 0, 0, 0, 0 };
 	}
 	~Impl()
 	{
@@ -222,6 +235,71 @@ GameTexture* GameGraphicManager::LoadTextureFromFile(const std::string& strFileP
 
 	SDL_Surface* pSurface = nullptr;
 	if (pSurface = IMG_Load_RW(SDL_RWFromMem(textureFile.pData, textureFile.nLength), 1))
+	{
+		void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameTexture));
+		GameTexture* pGameTexture = new (pMem) GameTexture();
+		pGameTexture->m_pImpl->m_nWidth = pSurface->w;
+		pGameTexture->m_pImpl->m_nHeight = pSurface->h;
+		pGameTexture->m_pImpl->m_pTexture = SDL_CreateTextureFromSurface(m_pImpl->m_pRenderer, pSurface);
+
+		SDL_FreeSurface(pSurface);
+		return pGameTexture;
+	}
+	return nullptr;
+}
+
+GameTexture* GameGraphicManager::CreateTextSolid(GameFont* pFont, const std::string& strText,
+	uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+	m_pImpl->m_colorForeground.r = r; m_pImpl->m_colorForeground.g = g;
+	m_pImpl->m_colorForeground.b = b; m_pImpl->m_colorForeground.a = a;
+
+	SDL_Surface* pSurface = nullptr;
+	if (pSurface = TTF_RenderUTF8_Solid(pFont->m_pImpl->m_pFont, strText.c_str(), m_pImpl->m_colorForeground))
+	{
+		void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameTexture));
+		GameTexture* pGameTexture = new (pMem) GameTexture();
+		pGameTexture->m_pImpl->m_nWidth = pSurface->w;
+		pGameTexture->m_pImpl->m_nHeight = pSurface->h;
+		pGameTexture->m_pImpl->m_pTexture = SDL_CreateTextureFromSurface(m_pImpl->m_pRenderer, pSurface);
+
+		SDL_FreeSurface(pSurface);
+		return pGameTexture;
+	}
+	return nullptr;
+}
+
+GameTexture* GameGraphicManager::CreateTextBlended(GameFont* pFont, const std::string& strText,
+	uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+	m_pImpl->m_colorForeground.r = r; m_pImpl->m_colorForeground.g = g;
+	m_pImpl->m_colorForeground.b = b; m_pImpl->m_colorForeground.a = a;
+
+	SDL_Surface* pSurface = nullptr;
+	if (pSurface = TTF_RenderUTF8_Blended(pFont->m_pImpl->m_pFont, strText.c_str(), m_pImpl->m_colorForeground))
+	{
+		void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameTexture));
+		GameTexture* pGameTexture = new (pMem) GameTexture();
+		pGameTexture->m_pImpl->m_nWidth = pSurface->w;
+		pGameTexture->m_pImpl->m_nHeight = pSurface->h;
+		pGameTexture->m_pImpl->m_pTexture = SDL_CreateTextureFromSurface(m_pImpl->m_pRenderer, pSurface);
+
+		SDL_FreeSurface(pSurface);
+		return pGameTexture;
+	}
+	return nullptr;
+}
+
+GameTexture* GameGraphicManager::CreateTextShaded(GameFont* pFont, const std::string& strText,
+	uint8_t rFore, uint8_t gFore, uint8_t bFore, uint8_t aFore, uint8_t rBack, uint8_t gBack, uint8_t bBack, uint8_t aBack)
+{
+	m_pImpl->m_colorForeground.r = rFore; m_pImpl->m_colorForeground.g = gFore;
+	m_pImpl->m_colorForeground.b = bFore; m_pImpl->m_colorForeground.a = aFore;
+	m_pImpl->m_colorBackground.r = rBack; m_pImpl->m_colorBackground.g = gBack;
+	m_pImpl->m_colorBackground.b = bBack; m_pImpl->m_colorBackground.a = aBack;
+
+	SDL_Surface* pSurface = nullptr;
+	if (pSurface = TTF_RenderUTF8_Shaded(pFont->m_pImpl->m_pFont, strText.c_str(), m_pImpl->m_colorForeground, m_pImpl->m_colorBackground))
 	{
 		void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(GameTexture));
 		GameTexture* pGameTexture = new (pMem) GameTexture();
@@ -328,17 +406,17 @@ void GameGraphicManager::Draw(GameImage* pGameImage,
 		nIndex = (nIndex + 1) % pGameImage->m_pImpl->m_nFrameCount;
 	}
 
-	m_pImpl->m_rectSrc = {
-		0, 0,
-		pGameImage->m_pImpl->m_pFrames->pGameTexture->GetWidth(),
-		pGameImage->m_pImpl->m_pFrames->pGameTexture->GetHeight() 
-	};
-	m_pImpl->m_rectDst = {
-		fDstX - fAnchorX * fDstW,
-		fDstY - fAnchorY * fDstH,
-		fDstW, fDstH
-	};
-	m_pImpl->m_pointRotation = { fAnchorX * fDstW, fAnchorY * fDstH };
+	m_pImpl->m_rectSrc.x = 0; m_pImpl->m_rectSrc.y = 0;
+	m_pImpl->m_rectSrc.w = pGameImage->m_pImpl->m_pFrames->pGameTexture->GetWidth();
+	m_pImpl->m_rectSrc.h = pGameImage->m_pImpl->m_pFrames->pGameTexture->GetHeight();
+
+	m_pImpl->m_rectDst.x = fDstX - fAnchorX * fDstW;
+	m_pImpl->m_rectDst.y = fDstY - fAnchorY * fDstH;
+	m_pImpl->m_rectDst.w = fDstW;
+	m_pImpl->m_rectDst.h = fDstH;
+
+	m_pImpl->m_pointRotation.x = fAnchorX * fDstW;
+	m_pImpl->m_pointRotation.y = fAnchorY * fDstH;
 
 	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->m_pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
 		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fRotation, &m_pImpl->m_pointRotation, (SDL_RendererFlip)emFlip);
@@ -359,14 +437,16 @@ void GameGraphicManager::Draw(GameImage* pGameImage,
 		nIndex = (nIndex + 1) % pGameImage->m_pImpl->m_nFrameCount;
 	}
 
-	m_pImpl->m_rectSrc = { nSrcX, nSrcY, nSrcW, nSrcH };
+	m_pImpl->m_rectSrc.x = nSrcX; m_pImpl->m_rectSrc.y = nSrcY;
+	m_pImpl->m_rectSrc.w = nSrcW; m_pImpl->m_rectSrc.h = nSrcH;
 
-	m_pImpl->m_rectDst = {
-		fDstX - fAnchorX * fDstW,
-		fDstY - fAnchorY * fDstH,
-		fDstW, fDstH
-	};
-	m_pImpl->m_pointRotation = { fAnchorX * fDstW, fAnchorY * fDstH };
+	m_pImpl->m_rectDst.x = fDstX - fAnchorX * fDstW;
+	m_pImpl->m_rectDst.y = fDstY - fAnchorY * fDstH;
+	m_pImpl->m_rectDst.w = fDstW;
+	m_pImpl->m_rectDst.h = fDstH;
+
+	m_pImpl->m_pointRotation.x = fAnchorX * fDstW;
+	m_pImpl->m_pointRotation.y = fAnchorY * fDstH;
 
 	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->m_pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
 		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fRotation, &m_pImpl->m_pointRotation, (SDL_RendererFlip)emFlip);
@@ -418,7 +498,8 @@ void GameGraphicManager::DrawRectangle(int x, int y, int w, int h, bool isFilled
 	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
 		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
 
-	m_pImpl->m_rectDraw = { x, y, w, h };
+	m_pImpl->m_rectDraw.x = x; m_pImpl->m_rectDraw.y = y;
+	m_pImpl->m_rectDraw.h = h; m_pImpl->m_rectDraw.w = w;
 
 	if (isFilled)
 	{
@@ -506,6 +587,47 @@ void GameGraphicManager::DrawTriangle(int x1, int y1, int x2, int y2, int x3, in
 
 	aatrigonRGBA(m_pImpl->m_pRenderer, x1, y1, x2, y2, x3, y3,
 		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+}
+
+void GameGraphicManager::DrawPolygon(std::initializer_list<std::tuple<int, int> > ilPoints, bool isFilled)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	for (int i = 0; i < ilPoints.size(); i++)
+	{
+		auto [x, y] = *(ilPoints.begin() + i);
+		m_pImpl->m_vecPointX.push_back(x);
+		m_pImpl->m_vecPointY.push_back(y);
+	}
+
+	if (isFilled)
+	{
+		filledPolygonRGBA(m_pImpl->m_pRenderer, &m_pImpl->m_vecPointX[0], &m_pImpl->m_vecPointY[0], ilPoints.size(),
+			m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+		return;
+	}
+	aapolygonRGBA(m_pImpl->m_pRenderer, &m_pImpl->m_vecPointX[0], &m_pImpl->m_vecPointY[0], ilPoints.size(),
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+
+	m_pImpl->m_vecPointX.clear(); m_pImpl->m_vecPointY.clear();
+}
+
+void GameGraphicManager::DrawBezier(std::initializer_list<std::tuple<int, int> > ilPoints, int nInterpolationCount)
+{
+	SDL_GetRenderDrawColor(m_pImpl->m_pRenderer,
+		&m_pImpl->m_colorDraw.r, &m_pImpl->m_colorDraw.g, &m_pImpl->m_colorDraw.b, &m_pImpl->m_colorDraw.a);
+
+	for (int i = 0; i < ilPoints.size(); i++)
+	{
+		auto [x, y] = *(ilPoints.begin() + i);
+		m_pImpl->m_vecPointX.push_back(x);
+		m_pImpl->m_vecPointY.push_back(y);
+	}
+	bezierRGBA(m_pImpl->m_pRenderer, &m_pImpl->m_vecPointX[0], &m_pImpl->m_vecPointY[0], ilPoints.size(), nInterpolationCount,
+		m_pImpl->m_colorDraw.r, m_pImpl->m_colorDraw.g, m_pImpl->m_colorDraw.b, m_pImpl->m_colorDraw.a);
+
+	m_pImpl->m_vecPointX.clear(); m_pImpl->m_vecPointY.clear();
 }
 
 GameGraphicManager::GameGraphicManager()
