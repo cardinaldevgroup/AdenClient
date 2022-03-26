@@ -16,7 +16,7 @@ public:
 	struct Entry 
 	{
 		std::string		strName;
-		ConstructFunc	funcConstruct;
+		ConstructFunc	funcConstructor;
 	};
 
 	struct Camera
@@ -37,7 +37,7 @@ public:
 	b2Joint*		CameraFollow(b2Body* pBody);
 
 private:
-	b2World*	m_pWorld;
+	b2World*		m_pWorld;
 
 	std::vector<GameNode*>						m_vecNode;
 	std::vector<GameSprite*>					m_vecSprite;
@@ -51,10 +51,11 @@ private:
 class GameSceneManager
 {
 public:
+	int Register(std::string strName, GameScene::ConstructFunc funcConstructor);
 
 
 private:
-
+	std::vector<GameScene::Entry> m_vecSceneEntry;
 
 public:
 	~GameSceneManager();

@@ -62,6 +62,12 @@ GameScene::~GameScene()
 	delete m_pWorld;
 }
 
+int GameSceneManager::Register(std::string strName, GameScene::ConstructFunc funcConstructor)
+{
+	m_vecSceneEntry.push_back({ strName, funcConstructor });
+	return m_vecSceneEntry.size() - 1;
+}
+
 GameSceneManager::GameSceneManager()
 {
 

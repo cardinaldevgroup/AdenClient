@@ -78,7 +78,7 @@ public:
 			{
 				{ (GameEvent::Type)m_event.type, GameTimerManager::GetInstance().GetCurrentFrame(), sizeof(GameMouseButtonEvent) },
 				m_event.button.x, m_event.button.y,
-				m_event.button.button,
+				(GameMouseButtonEvent::Button)m_event.button.button,
 				m_event.button.clicks,
 				(bool)m_event.button.state
 			};

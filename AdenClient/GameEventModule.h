@@ -389,8 +389,17 @@ private:
 // 鼠标按键事件
 struct GameMouseButtonEvent : GameEvent
 {
+	enum class Button
+	{
+		LEFT = 1,
+		MIDDLE,
+		RIGHT,
+		X1,
+		X2
+	};
+
 	int32_t		x, y;
-	uint8_t		nButton;
+	Button		emButton;
 	uint8_t		nClicks;
 	bool		bIsPressed;
 };
