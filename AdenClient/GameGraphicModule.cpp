@@ -392,7 +392,7 @@ void GameGraphicManager::DestroyImage(GameImage* pGameImage)
 	GameBlockAllocator::GetInstance().Free(pGameImage, sizeof(GameImage));
 }
 
-void GameGraphicManager::Draw(GameImage* pGameImage,
+void GameGraphicManager::DrawImage(GameImage* pGameImage,
 	float fDstX, float fDstY, float fDstW, float fDstH,
 	float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,
 	int nProgress)
@@ -422,7 +422,7 @@ void GameGraphicManager::Draw(GameImage* pGameImage,
 		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fRotation, &m_pImpl->m_pointRotation, (SDL_RendererFlip)emFlip);
 }
 
-void GameGraphicManager::Draw(GameImage* pGameImage,
+void GameGraphicManager::DrawImage(GameImage* pGameImage,
 	int nSrcX, int nSrcY, int nSrcW, int nSrcH,
 	float fDstX, float fDstY, float fDstW, float fDstH,
 	float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,
@@ -451,6 +451,17 @@ void GameGraphicManager::Draw(GameImage* pGameImage,
 	SDL_RenderCopyExF(m_pImpl->m_pRenderer, pGameImage->m_pImpl->m_pFrames[nIndex].pGameTexture->m_pImpl->m_pTexture,
 		&m_pImpl->m_rectSrc, &m_pImpl->m_rectDst, fRotation, &m_pImpl->m_pointRotation, (SDL_RendererFlip)emFlip);
 }
+
+void GameGraphicManager::GetDrawColor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a)
+{
+
+}
+
+void GameGraphicManager::SetDrawColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+
+}
+
 
 void GameGraphicManager::ClearWindow()
 {

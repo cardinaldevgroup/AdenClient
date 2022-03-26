@@ -28,7 +28,7 @@
     <ClCompile Include="GameMediaModule.cpp" />
     <ClCompile Include="GameModModule.cpp" />
     <ClCompile Include="GameNodeModule.cpp" />
-    <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="GameSceneModule.cpp" />
     <ClCompile Include="GameSpriteModule.cpp" />
     <ClCompile Include="GameTimerModule.cpp" />
     <ClCompile Include="GameWidgetModule.cpp" />
@@ -42,7 +42,7 @@
     <ClInclude Include="GameMediaModule.h" />
     <ClInclude Include="GameModModule.h" />
     <ClInclude Include="GameNodeModule.h" />
-    <ClInclude Include="GameScene.h" />
+    <ClInclude Include="GameSceneModule.h" />
     <ClInclude Include="GameSpriteModule.h" />
     <ClInclude Include="GameTimerModule.h" />
     <ClInclude Include="GameWidgetModule.h" />

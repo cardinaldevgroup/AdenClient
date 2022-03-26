@@ -191,7 +191,7 @@ void GameSpriteManager::Show(GameSprite* pSprite)
 {
 	GameGraphicManager::GetInstance().GetWindowSize(m_pImpl->m_nWindowWidth, m_pImpl->m_nWindowHeight);
 
-	GameGraphicManager::GetInstance().Draw(pSprite->GetImage(),
+	GameGraphicManager::GetInstance().DrawImage(pSprite->GetImage(),
 
 		((pSprite->GetNode()->GetPosition().x * pSprite->GetNode()->GetScale().x - m_pImpl->m_pointCameraPosition.x)
 			* 100.0f + m_pImpl->m_nWindowWidth / 2) * m_pImpl->m_fZoom,

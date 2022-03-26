@@ -161,7 +161,7 @@ public:
 	// @param fAnchorX, fAnchorY: 旋转锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void	Draw(GameImage* pGameImage,
+	void	DrawImage(GameImage* pGameImage,
 		float fDstX, float fDstY, float fDstW, float fDstH,
 		float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,
 		int nProgress = 0);
@@ -176,7 +176,7 @@ public:
 	// @param fAnchorX, fAnchorY: 锚点，其中(0.5f, 0.5f)为中心
 	// @param emFlip: 翻转类型
 	// @param nProgress: 从图片的指定进度开始绘制
-	void	Draw(GameImage* pGameImage,
+	void	DrawImage(GameImage* pGameImage,
 		int nSrcX, int nSrcY, int nSrcW, int nSrcH,
 		float fDstX, float fDstY, float fDstW, float fDstH,
 		float fRotation, float fAnchorX, float fAnchorY, GameImage::Flip emFlip,

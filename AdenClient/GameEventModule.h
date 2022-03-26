@@ -81,7 +81,7 @@ protected:
 };
 
 // 键盘事件
-struct GameKeyboardEvent: GameEvent
+struct GameKeyboardEvent : GameEvent
 {
 	enum class Code
 	{
@@ -387,9 +387,10 @@ private:
 };
 
 // 鼠标按键事件
-struct GameMouseButtonEvent :GameEvent
+struct GameMouseButtonEvent : GameEvent
 {
 	int32_t		x, y;
+	uint8_t		nButton;
 	uint8_t		nClicks;
 	bool		bIsPressed;
 };
@@ -470,7 +471,7 @@ private:
 };
 
 // 碰撞事件
-struct GameCollisionEvent: GameEvent
+struct GameCollisionEvent : GameEvent
 {
 
 };
