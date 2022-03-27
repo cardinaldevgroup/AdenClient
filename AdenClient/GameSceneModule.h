@@ -13,16 +13,12 @@ class GameScene
 {
 public:
 	typedef GameScene* (*ConstructFunc)();
-	struct Entry 
-	{
-		std::string		strName;
-		ConstructFunc	funcConstructor;
-	};
 
 	struct Camera
 	{
-		b2Body*		pBody;
-		b2Joint*	pJoint;
+		b2Body*			pCameraBody;
+		GameNode*		pFollowNode;
+		b2MotorJoint*	pMotorJoint;
 	};
 
 	virtual void	Update();
@@ -34,28 +30,33 @@ public:
 	b2Joint*		CreateJoint(const b2JointDef* defJoint);
 	void			DestroyJoint(b2Joint* pJoint);
 
-	b2Joint*		CameraFollow(b2Body* pBody);
+	void			CameraFollow(GameNode* pNode);
 
 private:
-	b2World*		m_pWorld;
 
-	std::vector<GameNode*>						m_vecNode;
-	std::vector<GameSprite*>					m_vecSprite;
-	std::vector<GameEventManager::Listener*>	m_vecListener;
+	Camera*		m_pCamera;
+	b2Body*		m_pOrigin;
+	b2World*	m_pWorld;
+
+	std::vector<GameSprite*>	m_vecSprite;
 
 private:
 	GameScene(b2Vec2 vec2Gravity);
 	virtual ~GameScene();
+
+	friend class GameSceneManager;
 };
 
 class GameSceneManager
 {
 public:
-	int Register(std::string strName, GameScene::ConstructFunc funcConstructor);
-
+	void RegisterScene(std::string strName, GameScene::ConstructFunc funcConstructor);
+	void SwitchToScene(std::string strName);
 
 private:
-	std::vector<GameScene::Entry> m_vecSceneEntry;
+	GameScene* m_pCurrentScene;
+
+	std::unordered_map<std::string, GameScene::ConstructFunc> m_mapSceneEntry;
 
 public:
 	~GameSceneManager();

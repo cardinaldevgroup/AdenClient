@@ -1,5 +1,7 @@
 #include "GameSceneModule.h"
 
+#include "GameBlockAllocator.h"
+
 void GameScene::Update()
 {
 	GameInput::GetInstance().Update();
@@ -47,33 +49,63 @@ void GameScene::DestroyJoint(b2Joint* pJoint)
 	m_pWorld->DestroyJoint(pJoint);
 }
 
-b2Joint* GameScene::CameraFollow(b2Body* pBody)
+void GameScene::CameraFollow(GameNode* pNode)
 {
-
+	m_pCamera->pFollowNode = pNode;
 }
 
 GameScene::GameScene(b2Vec2 vec2Gravity)
 {
 	m_pWorld = new b2World(vec2Gravity);
+
+	b2BodyDef defOriginBody;
+	m_pOrigin = m_pWorld->CreateBody(&defOriginBody);
+
+	b2BodyDef defCameraBody;
+	defCameraBody.type = b2_dynamicBody;
+	defCameraBody.fixedRotation = true;
+	defCameraBody.gravityScale = 0.0f;
+	b2Body* pCameraBody = m_pWorld->CreateBody(&defCameraBody);
+
+	b2MotorJointDef defMotorJoint;
+	defMotorJoint.bodyA = m_pOrigin;
+	defMotorJoint.bodyB = pCameraBody;
+	defMotorJoint.maxForce = 4000.0f;
+	b2MotorJoint* pMotorJoint = (b2MotorJoint*)m_pWorld->CreateJoint(&defMotorJoint);
+
+	void* pMem = GameBlockAllocator::GetInstance().Allocate(sizeof(Camera));
+	m_pCamera = new (pMem) Camera{ pCameraBody, nullptr, pMotorJoint };
 }
 
 GameScene::~GameScene()
 {
+	GameBlockAllocator::GetInstance().Free(m_pCamera, sizeof(Camera));
 	delete m_pWorld;
 }
 
-int GameSceneManager::Register(std::string strName, GameScene::ConstructFunc funcConstructor)
+void GameSceneManager::RegisterScene(std::string strName, GameScene::ConstructFunc funcConstructor)
 {
-	m_vecSceneEntry.push_back({ strName, funcConstructor });
-	return m_vecSceneEntry.size() - 1;
+	m_mapSceneEntry[strName] = funcConstructor;
+}
+
+void GameSceneManager::SwitchToScene(std::string strName)
+{
+	if (m_pCurrentScene)
+	{
+		delete m_pCurrentScene;
+	}
+	m_pCurrentScene = m_mapSceneEntry[strName]();
 }
 
 GameSceneManager::GameSceneManager()
 {
-
+	m_pCurrentScene = nullptr;
 }
 
 GameSceneManager::~GameSceneManager()
 {
-
+	if (m_pCurrentScene)
+	{
+		delete m_pCurrentScene;
+	}
 }
